@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title><%=title%></title>
+</head>
+<body>
+<%=allTask.length%>
+<ul>
+<% allTask.forEach(function(task, index) { %>
+<li>开发版本:<%=task['fixVersion']%>
+    转测时间:<%=task['releaseTestTime']%>
+    P版时间:<%=task['releasePTime']%>
+    正式版时间:<%=task['releaseTime']%>
+    <dl>
+        <dt>前端工程师</dt>
+        <% task['users'].forEach(function(user, index) { %>
+        <dd>
+            <dl>
+                <dt><%=user['assignee']%></dt>
+                <dd>bug数:<%=user['bugs']%></dd>
+                <dd>需求变更数:<%=user['reqUpdated']%></dd>
+                <dd>开发时间:<%=user['devTime']%></dd>
+                <dd>解决bug时间:<%=user['fixedBugsTime']%></dd>
+                <dd>bug率:<%=user['testBugsRate']%></dd>
+                <dd>P版bug率:<%=user['PBugsRate']%></dd>
+                <dl>
+                    <dt>相关任务</dt>
+                    <% user['tasks'].forEach(function(subTask, index) { %>
+                        <dd><a href="<%=subTask['link']%>" target="_blank"><%=subTask['taskName']%></a></dd>
+                    <% }) %>
+                </dl>
+            </dl>
+        </dd>
+
+        <% }) %>
+    </dl>
+</li>
+<% }) %>
+</ul>
+</body>
+</html>
