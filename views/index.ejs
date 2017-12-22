@@ -9,9 +9,9 @@
 <ul>
 <% allTask.forEach(function(task, index) { %>
 <li>开发版本:<%=task['fixVersion']%>
-    转测时间:<%=task['releaseTestTime']%>
-    P版时间:<%=task['releasePTime']%>
-    正式版时间:<%=task['releaseTime']%>
+    <% if (task['releaseTestTime']) { %>转测时间:<%=task['releaseTestTime']%><% } %>
+    <% if (task['releasePTime']) { %>P版时间:<%=task['releasePTime']%><% } %>
+    <% if (task['releaseTime']) { %>正式版时间:<%=task['releaseTime']%><% } %>
     <dl>
         <dt>前端工程师</dt>
         <% task['users'].forEach(function(user, index) { %>

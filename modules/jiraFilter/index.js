@@ -8,6 +8,9 @@
 const request = require('request');
 const xml2js = require('xml2js');
 const sql = require('./sql');
+const path = require('path');
+const taskProgress = require(path.resolve(process.cwd(), './config/task-progress'));
+
 const debug = require('debug')('task:Filter');
 
 const AUTH = {
@@ -34,22 +37,28 @@ request(sql.taskData, AUTH, (err, response, body)=> {
 /**
  *  [{
         fixVersion: '',
-        releasePTime: '',
-        releaseTestTime: '',
-        releaseTime: '',
+        releasePTime: '', // config 文件导入
+        releaseTestTime: '', // config 文件导入
+        releaseTime: '', // config 文件导入
+        bugs: 0, // 当前版本所有bug总数
         users: [{
-            assignee: '', // 账户名
-            userName: '', // 中文名
+            assignee: '',
+            userName: '',
             tasks: [{
                 taskName: '',
                 link: ''
             }],
-            bugs: '',
-            reqUpdated: '',
-            devTime: '',
-            fixedBugsTime: '',
-            testBugsRate: '',
-            PBugsRate: ''
+            bugs: 0, // 当前版本内产生的所有bug数
+            pbugs: 0, // P版产生bug数
+            tbugs: 0, // 测试版产生bug数
+            reqUpdated: 0, // 第一日志时间到发布正式版时间范围内需求变更数
+            overTime: '', // 开发时间为大于转测时间，则统计正式版发布之前所有花费时间
+            devStartTime: '', 第一次填写日志时间 如果开发开始时间大于测试时间 则后面所有时间全部返回 -1 直接取所有日志时间和所有bug数进行bug率计算
+            devTime: '', // 第一日填写日志到转测花费时间 记为开发时间
+            fixBugsTime: '', // 转测后到P版发布修复BUG花费时间，所有当前版本日志时间总和 不参与任何计算 只是统计
+            fixPBugsTime: '', // P版发布后 花费的时间
+            testBugsRate: '', // tbugs / devTime 7.5h/天
+            PBugsRate: '' // pbugs / fixPBugsTime 7.5h/天
         }]
     }]
  */
@@ -71,7 +80,7 @@ function formatRssData(rssData) {
         return result;
     }
 
-    let tmp, userTmp;
+    let tmp, userTmp, progressTmp, version;
     let title,
         link,
         assignee,
@@ -117,11 +126,11 @@ function formatRssData(rssData) {
                 });
             }
         } else {
-            result.push({
+            version = {
                 fixVersion: fixVersion,
-                releasePTime: '',
-                releaseTestTime: '',
-                releaseTime: '',
+                releasePTime: null,
+                releaseTestTime: null,
+                releaseTime: null,
                 users: [{
                     assignee: assignee,
                     userName: userName,
@@ -136,7 +145,16 @@ function formatRssData(rssData) {
                     testBugsRate: '',
                     PBugsRate: ''
                 }]
-            });
+            };
+
+            if (taskProgress) {
+                progressTmp = arrayObjectSearch(taskProgress.versions, 'fixVersion', fixVersion);
+                if (progressTmp) {
+                    version = Object.assign(version, progressTmp);
+                }
+            }
+
+            result.push(version);
         }
     });
 
@@ -159,10 +177,6 @@ function arrayObjectSearch(arr, fieldName, value) {
     }
 
     return result;
-}
-
-function getWorkLogTime() {
-
 }
 
 function taskFilter() {

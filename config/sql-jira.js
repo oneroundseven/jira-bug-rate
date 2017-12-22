@@ -14,7 +14,7 @@ let issuetype = {
     task: ['Task', 'Sub-task', 'Suggestion', 'Sub-Req'],
     bug: ['Bug', 'sub-bug']
 };
-let resolutionNotIn = ['Aborted', 'Rejected', 'Duplicate', '"Won%27t%20Fix"'];
+
 let comma = '%2C'; // ,
 
 // 中文转码
@@ -27,9 +27,9 @@ module.exports = {
     projects.join(comma) +')%20AND%20issuetype%20in%20('+
     issuetype.task.join(comma) +')%20AND%20status%20not%20in%20(Aborted)%20AND%20assignee%20in%20('+
     uedFEUsers.join(comma) +')%20AND%20createdDate%20%3E%20'+ overTime +'%20ORDER%20BY%20updatedDate',
-    versionBugsData: 'http://jira.vemic.com/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?jqlQuery==project%20in%20('+
+    versionData: 'http://jira.vemic.com/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?jqlQuery=project%20in%20('+
     projects.join(comma) +')%20AND%20issuetype%20in%20('+
-    issuetype.bug.join(comma) +')%20AND%20resolution%20not%20in%20('+
-    resolutionNotIn.join(comma) +')%20AND%20assignee%20in%20('+
-    uedFEUsers.join(comma) +')%20AND%20createdDate%20%3E%20'+ overTime +'%20ORDER%20BY%20updatedDate',
+    issuetype.task.concat(issuetype.bug).join(comma) +')%20AND%20status%20not%20in%20(Aborted)%20AND%20assignee%20in%20('+
+    uedFEUsers.join(comma) +')%20AND%20createdDate%20%3E%20'+ overTime +'%20AND%20fixVersion%3D"{{fixVersion}}"',
+    users: uedFEUsers
 }
