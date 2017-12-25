@@ -21,41 +21,19 @@ let requestAuth = {
     'auth': Object.assign({}, taskJira.auth, { sendImmediately: true })
 };
 
-function workTime(fixVersion) {
+function cLogs (fixVersion) {
     return new Promise(async (resolve, reject) => {
-        let result = {
-            firstLogTime: '', // 第一次填写日志时间
-
-        };
-        if (!sqlJira || !taskJira) {
-            debug('config get Error: config file not exist.');
-            resolve(result);
-            return;
-        }
-
-        if (!taskJira.versions || taskJira.versions.length === 0) {
-            debug('config get Error: fixVersion is not config plane time.'+ fixVersion);
-            resolve(result);
-            return;
-        }
-
-        if (!util.arrayObjectSearch(taskJira.versions, 'fixVersion', fixVersion)) {
-            debug('config get Error: fixVersion is not config plane time.'+ fixVersion);
-            resolve(result);
-            return;
-        }
+        let result;
 
         try {
             let allTaskAndBugs = await getAllTaskAndBugs(fixVersion);
             result = await statisticsTime(allTaskAndBugs);
             resolve(result);
-        } catch(err) {
-            debug('crawling Error: get working time log fail.'+ err);
+        } catch (err) {
             reject(err);
         }
     });
 }
-
 
 function getAllTaskAndBugs(fixVersion) {
     let result = [];
@@ -84,8 +62,6 @@ function getAllTaskAndBugs(fixVersion) {
 
     });
 }
-
-let test = [];
 
 function statisticsTime(allTaskAndBugs) {
     let users = sqlJira.users;
@@ -175,7 +151,6 @@ function parsePage(body) {
     return result;
 }
 
+cLogs('MICEN2_VOC_2017.12');
 
-workTime('MICEN2_VOC_2017.12');
-
-module.exports = workTime;
+module.exports = cLogs;

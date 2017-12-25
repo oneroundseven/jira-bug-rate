@@ -56,7 +56,7 @@ const ISSUE_TYPE = {
  */
 let result = [];
 
-function bugFilter(jiraJsonItem, ) {
+function bugFilter(jiraJsonItem, timeline) {
     if (!jiraJsonItem) return;
 
     let userName = jiraJsonItem.assignee[0].$.username;
