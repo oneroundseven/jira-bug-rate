@@ -19,7 +19,20 @@ let requestAuth = {
     'auth': Object.assign({}, taskJira.auth, { sendImmediately: true })
 };
 
-function rssData() {
+/**
+ * @param {String} [fixVersion]
+ * @returns {Promise<any>}
+ */
+function rssData(fixVersion) {
+
+    if (!taskJira.versions || taskJira.versions.length === 0) {
+        debug('config get Error: fixVersion is not config plane time.');
+    }
+
+    if (!util.arrayObjectSearch(taskJira.versions, 'fixVersion', fixVersion)) {
+        debug('config get Error: fixVersion is not config plane time.'+ fixVersion);
+    }
+
     return new Promise(async (resolve, reject) => {
         request(sqlJira.taskData, requestAuth, (err, response, body)=> {
             if (!err && response.statusCode === 200) {

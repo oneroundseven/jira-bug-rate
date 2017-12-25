@@ -9,6 +9,7 @@ const debug = require('debug')('jira:jiraFilter');
 const util = require('./src/util');
 const cLogs = require('./src/cLogs');
 const rssData = require('./src/rssData');
+const timeLine = require('./src/timeLine');
 
 let jiraTasks;
 
@@ -18,7 +19,7 @@ let jiraTasks;
  */
 function updateJiraTask(fixVersion) {
 
-    if (fixVersion && !jiraTasks) {
+    if (!jiraTasks && fixVersion) {
         debug('updateJiraTask Error: global cache do not exist.');
         return;
     }
@@ -26,34 +27,24 @@ function updateJiraTask(fixVersion) {
     if (fixVersion && !util.arrayObjectSearch('fixVerion'), fixVersion) {
         debug('updateJiraTask Error: version cache do not exist.' + fixVersion);
         return;
-    } else {
-        (async ()=> {
-            let rss = await rssData();
-            rss.forEach(async (item, index)=> {
-                await cLogs(item.fixVersion);
-                // 找到对应的版本的 users 进行赋值
-            });
-        })();
     }
 
-    /*return new Promise(async (resolve, reject) => {
-        let result = Object.assign({}, timeline);
-        let logs;
-
-        if (!sqlJira || !taskJira) {
-            debug('config get Error: config file not exist.');
-            resolve(result);
-            return;
-        }
-
+    return new Promise(async (resolve, reject) => {
         try {
-            logs = await cLogs(fixVersion);
-            resolve(logs);
+            let rss = await rssData(fixVersion);
+            let tmpLogs;
+            let tmpTimeLine;
+            rss.forEach(async (versionItem, index)=> {
+                tmpLogs = await cLogs(versionItem.fixVersion);
+                tmpTimeLine = await timeLine(tmpLogs, versionItem);
+                // 找到对应的版本的 users 进行赋值
+                // resolve(concat(tmpTimeLine, rss));
+            });
         } catch(err) {
-            debug('crawling Error: get working time log fail.'+ err);
+            debug('jiraFilter init Error:'+ err);
             reject(err);
         }
-    });*/
+    });
 }
 
 /**

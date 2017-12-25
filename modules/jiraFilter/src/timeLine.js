@@ -5,11 +5,9 @@
  * @author oneroundseven@gmail.com
  */
 
+const path =require('path');
 const debug = require('debug')('jira:timeLine');
 const util = require('./util');
-
-let cwd = process.cwd();
-const taskJira = require(path.resolve(cwd, 'config/task-jira'));
 
 let timeline = {
     devStartTime: null, // 第一次填写日志时间
@@ -21,24 +19,50 @@ let timeline = {
     releaseTime:null
 };
 
-function timeLine(fixVersion, cLogs) {
-    let result = Object.assign({}, timeline);
+/*{
+    "logTime": "2017/11/07 11:00 PM",
+    "spendTime": "7 hours, 30 minutes",
+    "overTime": "0 minutes",
+    "userName": "&#x5218;&#x5F64;&#x5F64;",
+    "assignee": "liutongtong"
+}*/
 
-    if (!taskJira.versions || taskJira.versions.length === 0) {
-        debug('config get Error: fixVersion is not config plane time.'+ fixVersion);
-        resolve(result);
-        return;
-    }
+function timeLine(cLogs, versionItem) {
+    let result = Object.assign({}, timeline, versionItem);
 
-    if (!util.arrayObjectSearch(taskJira.versions, 'fixVersion', fixVersion)) {
-        debug('config get Error: fixVersion is not config plane time.'+ fixVersion);
-        resolve(result);
-        return;
-    }
 
     cLogs.forEach((item, index)=> {
 
     });
+}
+
+function splitLineRange(timeLine, usersLog) {
+
+}
+
+function groupByUser(logs) {
+    let result = {};
+
+    if (!logs) return result;
+
+    logs.forEach((log, index)=> {
+        if (result[log.assignee]) {
+            result[log.assignee].push(log);
+        } else {
+            result[log.assignee] = [log];
+        }
+    });
+
+    // sort
+    for(let user in result) {
+        result[user].sort(sortDate);
+    }
+
+    return result;
+}
+
+function sortDate(date1Str, date2Str) {
+    return new Date(date1Str) > new Date(date2Str);
 }
 
 module.exports = timeLine;
