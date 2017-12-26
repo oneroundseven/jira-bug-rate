@@ -95,11 +95,13 @@ function statisticsBugs(bugs, versionItem, userName) {
 
     let releasePTime = versionItem.releasePTime;
     let releaseTime = versionItem.releaseTime;
+    let assignee;
 
     bugs.forEach((bug, index)=> {
         bugType = getBugType(bug['customfields']['customfield']);
         resolution = bug.resolution[0].$.id;
         bugCreateTime = bug.created[0];
+        assignee = bug['assignee'][0]['_'];
 
         if (isNotFormalBug(bugType) && RESOLUTION_STATUS[resolution] === 'Fixed' || RESOLUTION_STATUS[resolution] === 'Unresolved') {
             result.bugs++;
@@ -117,6 +119,16 @@ function statisticsBugs(bugs, versionItem, userName) {
     });
 
     let user = util.arrayObjectSearch(versionItem.users, 'userName', userName);
+
+    // 如果当前版本没有任务,则补充创建user
+    if (!user) {
+        user = {
+            assignee: assignee,
+            userName: userName,
+            tasks: []
+        };
+        versionItem.users.push(user);
+    }
 
     if (user && result.bugs > 0 && user.devTime > 0) {
         result.testBugsRate = (result.bugs / (user.devTime / 7.5)).toFixed(2);
