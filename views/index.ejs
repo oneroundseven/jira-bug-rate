@@ -5,13 +5,13 @@
     <title><%=title%></title>
 </head>
 <body>
-<%=allTask.length%>
 <ul>
 <% allTask.forEach(function(task, index) { %>
-<li>开发版本:<%=task['fixVersion']%>
-    <% if (task['releaseTestTime']) { %>转测时间:<%=task['releaseTestTime']%><% } %>
-    <% if (task['releasePTime']) { %>P版时间:<%=task['releasePTime']%><% } %>
-    <% if (task['releaseTime']) { %>正式版时间:<%=task['releaseTime']%><% } %>
+<li>开发版本:<%=task['fixVersion']%><br/>
+    <% if (task['releaseTestTime']) { %>转测时间:<%=task['releaseTestTime']%><% } %><br/>
+    <% if (task['releasePTime']) { %>P版时间:<%=task['releasePTime']%><% } %><br/>
+    <% if (task['releaseTime']) { %>正式版时间:<%=task['releaseTime']%><% } %><br/>
+    bug总数:<%=task['bugs']%>
     <dl>
         <dt>前端工程师</dt>
         <% task['users'].forEach(function(user, index) { %>
@@ -20,10 +20,13 @@
                 <dt><%=user['assignee']%></dt>
                 <dd>bug数:<%=user['bugs']%></dd>
                 <dd>需求变更数:<%=user['reqUpdated']%></dd>
-                <dd>开发时间:<%=user['devTime']%></dd>
-                <dd>解决bug时间:<%=user['fixedBugsTime']%></dd>
-                <dd>bug率:<%=user['testBugsRate']%></dd>
-                <dd>P版bug率:<%=user['PBugsRate']%></dd>
+                <dd>开发开始时间:<%=user['devStartTime']%></dd>
+                <dd>开发花费时间:<%=user['devTime']%>h</dd>
+                <dd>解决测试bug时间:<%=user['fixBugsTime']%>h</dd>
+                <dd>解决P版bug时间:<%=user['fixPBugsTime']%>h</dd>
+                <dd>bug率:<%=user['testBugsRate']%>/day</dd>
+                <dd>P版bug率:<%=user['PBugsRate']%>/day</dd>
+                <dd>解决正式版bug:<%=user['formalBug']%>个</dd>
                 <dl>
                     <dt>相关任务</dt>
                     <% user['tasks'].forEach(function(subTask, index) { %>

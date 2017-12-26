@@ -34,14 +34,21 @@ function updateJiraTask(fixVersion) {
         try {
             let rss = await rssData(fixVersion);
             let tmpLogs;
+            let len = new Array(rss.length);
             rss.forEach(async (versionItem, index)=> {
-                tmpLogs = await cLogs(versionItem);
-                // 统计所有时间
-                timeLine(tmpLogs, versionItem);
-                // 统计bug数量及bug率
-                bugFilter(versionItem);
+                try {
+                    tmpLogs = await cLogs(versionItem);
+                    // 统计所有时间
+                    timeLine(tmpLogs, versionItem);
+                    // 统计bug数量及bug率
+                    bugFilter(versionItem);
+                    len.splice(0,1);
+                } catch(err) {
+                    debug('trans time & bug error:'+ versionItem.fixVersion);
+                    len.splice(0,1);
+                }
 
-                if (index === rss.length - 1) {
+                if (len.length === 0) {
                     jiraTasks = rss;
                     resolve(rss);
                 }
@@ -49,6 +56,7 @@ function updateJiraTask(fixVersion) {
         } catch(err) {
             debug('jiraFilter init Error:'+ err);
             reject(err);
+            console.log('jira Filter init complete!');
         }
     });
 }

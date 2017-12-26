@@ -71,7 +71,9 @@ module.exports = {
 
         tmp = jiraTime.match(TIME_REG.minute);
         if (tmp && tmp.length > 1) {
-            result += parseFloat(tmp[1]) / 60
+            if (tmp[1] !== '1') {
+                result += parseFloat(tmp[1]) / 60;
+            }
         }
 
         return result;

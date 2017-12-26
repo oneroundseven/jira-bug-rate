@@ -76,10 +76,12 @@ function statisticsTime(allTaskAndBugs) {
     return new Promise((resolve, reject) => {
         try {
             let tmp;
+            let len = new Array(allTaskAndBugs.length);
             allTaskAndBugs.forEach(async (item, index)=> {
                 tmp = await tranLogTime(item.link[0]);
                 result = result.concat(tmp);
-                if (index === allTaskAndBugs.length - 1) {
+                len.splice(0,1);
+                if (len.length === 0) {
                     resolve(result);
                 }
             });

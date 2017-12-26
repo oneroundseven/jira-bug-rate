@@ -118,12 +118,12 @@ function statisticsBugs(bugs, versionItem, userName) {
 
     let user = util.arrayObjectSearch(versionItem.users, 'userName', userName);
 
-    if (result.bugs > 0 && user.devTime > 0) {
-        result.testBugsRate = result.bugs / (user.devTime / 7.5)
+    if (user && result.bugs > 0 && user.devTime > 0) {
+        result.testBugsRate = (result.bugs / (user.devTime / 7.5)).toFixed(2);
     }
 
-    if (result.pbugs > 0 && user.fixPBugsTime > 0) {
-        result.PBugsRate = result.pbugs / (user.fixPBugsTime / 7.5);
+    if (user && result.pbugs > 0 && user.fixPBugsTime > 0) {
+        result.PBugsRate = (result.pbugs / (user.fixPBugsTime / 7.5)).toFixed(2);
     }
 
     if (user) {
