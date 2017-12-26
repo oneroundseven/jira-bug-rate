@@ -9,7 +9,7 @@ const request = require('request');
 const cheerio = require('cheerio');
 const xml2js = require('xml2js');
 const path = require('path');
-const debug = require('debug')('jira:workTime');
+const debug = require('debug')('jira:cLogs');
 const util = require('./util');
 
 let cwd = process.cwd();
@@ -21,12 +21,13 @@ let requestAuth = {
     'auth': Object.assign({}, taskJira.auth, { sendImmediately: true })
 };
 
-function cLogs (fixVersion) {
+function cLogs (versionItem) {
     return new Promise(async (resolve, reject) => {
         let result;
 
         try {
-            let allTaskAndBugs = await getAllTaskAndBugs(fixVersion);
+            let allTaskAndBugs = await getAllTaskAndBugs(versionItem.fixVersion);
+            versionItem.allTaskAndBugs = allTaskAndBugs;
             result = await statisticsTime(allTaskAndBugs);
             resolve(result);
         } catch (err) {
@@ -150,7 +151,5 @@ function parsePage(body) {
 
     return result;
 }
-
-cLogs('MICEN2_VOC_2017.12');
 
 module.exports = cLogs;

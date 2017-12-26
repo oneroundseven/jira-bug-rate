@@ -9,35 +9,97 @@ const path =require('path');
 const debug = require('debug')('jira:timeLine');
 const util = require('./util');
 
-let timeline = {
+let defaultTimeLine = {
     devStartTime: null, // 第一次填写日志时间
-    devTime: null,
+    devTime: 0,
     releaseTestTime: null,
-    fixBugsTime: null,
+    fixBugsTime: 0,
     releasePTime: null,
-    fixPBugsTime: null,
+    fixPBugsTime: 0,
     releaseTime:null
 };
+
+
+
+function timeLine(logs, versionItem) {
+    let result = Object.assign({}, versionItem);
+    let now = new Date();
+    now = util.transTimeTo24(now.toString());
+
+    if (!result.releaseTestTime) {
+        debug('timeLine Warn: releaseTestTime is not specified.'+ versionItem.fixVersion);
+        result.releaseTestTime = now;
+    }
+
+    if (!result.releasePTime) {
+        debug('timeLine Warn: releasePtime is not specified.'+ versionItem.fixVersion);
+        result.releasePTime = now;
+    }
+
+    if (!result.releaseTime) {
+        debug('timeLine Warn: releaseTime is not specified.'+ versionItem.fixVersion);
+        result.releaseTime = now;
+    }
+
+    try {
+        let groupUser = groupByUser(logs);
+        for (let userName in groupUser) {
+            statisticsTimeLine(groupUser[userName].logs, result, userName);
+        }
+    } catch (err) {
+        throw err;
+    }
+
+    return result;
+}
 
 /*{
     "logTime": "2017/11/07 11:00 PM",
     "spendTime": "7 hours, 30 minutes",
     "overTime": "0 minutes",
     "userName": "&#x5218;&#x5F64;&#x5F64;",
-    "assignee": "liutongtong"
+    "assignee": "sss"
+
+    devStartTime: null, // 第一次填写日志时间
+    devTime: null,
+    releaseTestTime: null,
+    fixBugsTime: null,
+    releasePTime: null,
+    fixPBugsTime: null,
+    releaseTime:null,
+    overTime:null // 正式版发布之后日志填写时间 只做统计不纳入计算
 }*/
+function statisticsTimeLine(userLogs, result, userName) {
+    let userLog;
+    let users = result.users;
+    let timeLine = Object.assign({}, defaultTimeLine, result);
 
-function timeLine(cLogs, versionItem) {
-    let result = Object.assign({}, timeline, versionItem);
+    let releaseTestTime = util.transTimeTo0(timeLine.releaseTestTime);
+    let releasePTime = util.transTimeTo0(timeLine.releasePTime);
+    let releaseTime = util.transTimeTo24(timeLine.releaseTime);
 
+    for (let i = 0; i < userLogs.length; i++) {
+        userLog = userLogs[i];
 
-    cLogs.forEach((item, index)=> {
+        if (i === 0) {
+            timeLine.devStartTime = userLog.logTime;
+        }
 
-    });
-}
+        if (util.date1MoreThanDate2(releaseTestTime, userLog.logTime)) {
+            timeLine.devTime += util.transTimeToHourFloat(userLog.spendTime) + util.transTimeToHourFloat(userLog.overTime);
+        } else if (releasePTime - releaseTestTime > 0 && util.date1MoreThanDate2(releasePTime, userLog.logTime)) {
+            timeLine.fixBugsTime = util.transTimeToHourFloat(userLog.spendTime) + util.transTimeToHourFloat(userLog.overTime);
+        } else if (releaseTime - releasePTime > 0 && util.date1MoreThanDate2(releaseTime, userLog.logTime)) {
+            timeLine.fixPBugsTime = util.transTimeToHourFloat(userLog.spendTime) + util.transTimeToHourFloat(userLog.overTime);
+        } else if (util.date1MoreThanDate2(userLog.logTime, releaseTime)) { // overrtime
+            timeLine.overTime = util.transTimeToHourFloat(userLog.spendTime) + util.transTimeToHourFloat(userLog.overTime);
+        }
+    }
 
-function splitLineRange(timeLine, usersLog) {
-
+    let user = util.arrayObjectSearch(users, 'userName', userName);
+    if (user) {
+        Object.assign(user, timeLine);
+    }
 }
 
 function groupByUser(logs) {
@@ -47,15 +109,18 @@ function groupByUser(logs) {
 
     logs.forEach((log, index)=> {
         if (result[log.assignee]) {
-            result[log.assignee].push(log);
+            result[log.assignee].logs.push(log);
         } else {
-            result[log.assignee] = [log];
+            result[log.assignee] = {
+                logs: [log],
+                timeline: null
+            };
         }
     });
 
     // sort
     for(let user in result) {
-        result[user].sort(sortDate);
+        result[user].logs.sort(sortDate);
     }
 
     return result;

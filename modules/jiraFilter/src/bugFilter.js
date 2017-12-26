@@ -5,7 +5,10 @@
  * @author oneroundseven@gmail.com
  */
 
+const debug = require('debug')('jira:bugFilter');
 const util = require('./util');
+
+
 const RESOLUTION_STATUS = {
     '-1': 'Unresolved',
     '1': 'Fixed',
@@ -50,40 +53,112 @@ const ISSUE_TYPE = {
  *      pbugs: 0, // P版产生bug数
  *      tbugs: 0, // 测试版产生bug数
  *      formalBug: 0, // 正式版bug数
- *      reqUpdated: 0 // 第一日志时间到发布正式版时间范围内需求变更数
+ *      reqUpdated: 0, // 第一日志时间到发布正式版时间范围内需求变更数
+ *      testBugsRate: '', // tbugs / devTime 7.5h/天
+        PBugsRate: '' // pbugs / fixPBugsTime 7.5h/天
  * }
- * @type {Array}
  */
-let result = [];
+function bugFilter(versionItem) {
+    if (!versionItem) return;
 
-function bugFilter(jiraJsonItem, timeline) {
-    if (!jiraJsonItem) return;
+    let allTaskAndBugs = versionItem.allTaskAndBugs;
+    if (!allTaskAndBugs || allTaskAndBugs.length === 0) {
+        debug('bugFilter Warn: not has any bugs and task.'+ versionItem.fixVersion)
+    }
 
-    let userName = jiraJsonItem.assignee[0].$.username;
-    let resolution = jiraJsonItem.resolution[0].$.id;
-    let issueType = jiraJsonItem.type[0].$.id;
-    let user = util.arrayObjectSearch(result, 'userName', userName);
-    let bugType;
-
-    if (ISSUE_TYPE[issueType] === 'Bug') {
-        if (user) {
-            bugType = getBugType(jiraJsonItem['customfields']['customfield']);
-            if (isNotFormalBug(bugType) && RESOLUTION_STATUS[resolution] === 'Fixed' || RESOLUTION_STATUS[resolution] === 'Unresolved') {
-                user.bugs = user.bugs++;
-            } else if (RESOLUTION_STATUS[resolution] === 'Req Updated') {
-                user.reqUpdated = user.reqUpdated++;
-            }
-        } else {
-            user.push({
-                userName: userName,
-                bugs: 0,
-                pbugs: 0,
-                tbugs: 0,
-                reqUpdated: 0,
-                formalBug: 0
-            })
+    versionItem.bugs = 0;
+    let bugsGroup = groupBugByUser(allTaskAndBugs);
+    let tmp;
+    for (let user in bugsGroup) {
+        tmp = statisticsBugs(bugsGroup[user], versionItem, user);
+        if (tmp.bugs > 0) {
+            versionItem.bugs += tmp.bugs;
         }
     }
+}
+
+let defaultBugs = {
+    bugs: 0,
+    pbugs: 0,
+    tbugs: 0,
+    reqUpdated: 0,
+    formalBug: 0,
+    testBugsRate: null,
+    PBugsRate: null
+};
+
+function statisticsBugs(bugs, versionItem, userName) {
+    let result = Object.assign({}, defaultBugs);
+    let bugType;
+    let resolution;
+    let bugCreateTime;
+
+    let releasePTime = versionItem.releasePTime;
+    let releaseTime = versionItem.releaseTime;
+
+    bugs.forEach((bug, index)=> {
+        bugType = getBugType(bug['customfields']['customfield']);
+        resolution = bug.resolution[0].$.id;
+        bugCreateTime = bug.created[0];
+
+        if (isNotFormalBug(bugType) && RESOLUTION_STATUS[resolution] === 'Fixed' || RESOLUTION_STATUS[resolution] === 'Unresolved') {
+            result.bugs++;
+
+            if (util.date1MoreThanDate2(releasePTime, bugCreateTime)){
+                result.tbugs++;
+            } else if (util.date1MoreThanDate2(releaseTime, bugCreateTime)) {
+                result.pbugs++;
+            }
+        } else if (RESOLUTION_STATUS[resolution] === 'Req Updated') {
+            result.reqUpdated++;
+        } else if (!isNotFormalBug(bugType)) {
+            result.formalBug++;
+        }
+    });
+
+    let user = util.arrayObjectSearch(versionItem.users, 'userName', userName);
+
+    if (result.bugs > 0 && user.devTime > 0) {
+        result.testBugsRate = result.bugs / (user.devTime / 7.5)
+    }
+
+    if (result.pbugs > 0 && user.fixPBugsTime > 0) {
+        result.PBugsRate = result.pbugs / (user.fixPBugsTime / 7.5);
+    }
+
+    if (user) {
+        Object.assign(user, result);
+    }
+    return result;
+}
+
+/**
+ * group bugs buy user
+ * @param allTaskAndBugs
+ * @returns {{}}
+ */
+function groupBugByUser(allTaskAndBugs) {
+    let result = {};
+    let userName;
+    let issueType;
+
+    if (!allTaskAndBugs) return result;
+
+    allTaskAndBugs.forEach((item, index)=> {
+        userName = item['assignee'][0]['$']['username'];
+        issueType = item.type[0].$.id;
+
+        // only bug & req-update can be add
+        if (ISSUE_TYPE[issueType] === 'Bug') {
+            if (result[userName]) {
+                result[userName].push(item);
+            } else {
+                result[userName] = [item];
+            }
+        }
+    });
+
+    return result;
 }
 
 /**
@@ -117,13 +192,4 @@ function isNotFormalBug(bugType) {
     return result;
 }
 
-function getResult() {
-    let tmp = result.concat([]);
-    result = [];
-    return tmp;
-}
-
-module.exports = {
-    filter: bugFilter,
-    getResult: getResult
-};
+module.exports = bugFilter;

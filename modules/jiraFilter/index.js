@@ -10,6 +10,7 @@ const util = require('./src/util');
 const cLogs = require('./src/cLogs');
 const rssData = require('./src/rssData');
 const timeLine = require('./src/timeLine');
+const bugFilter = require('./src/bugFilter');
 
 let jiraTasks;
 
@@ -33,12 +34,17 @@ function updateJiraTask(fixVersion) {
         try {
             let rss = await rssData(fixVersion);
             let tmpLogs;
-            let tmpTimeLine;
             rss.forEach(async (versionItem, index)=> {
-                tmpLogs = await cLogs(versionItem.fixVersion);
-                tmpTimeLine = await timeLine(tmpLogs, versionItem);
-                // 找到对应的版本的 users 进行赋值
-                // resolve(concat(tmpTimeLine, rss));
+                tmpLogs = await cLogs(versionItem);
+                // 统计所有时间
+                timeLine(tmpLogs, versionItem);
+                // 统计bug数量及bug率
+                bugFilter(versionItem);
+
+                if (index === rss.length - 1) {
+                    jiraTasks = rss;
+                    resolve(rss);
+                }
             });
         } catch(err) {
             debug('jiraFilter init Error:'+ err);
@@ -57,6 +63,10 @@ function jiraFilter() {
         await next();
     }
 }
+
+process.on('unhandledRejection', (reason, p) => {
+    console.log('Unhandled Rejection:', p, 'reason: ', reason);
+});
 
 updateJiraTask();
 

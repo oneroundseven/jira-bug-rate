@@ -29,21 +29,26 @@ function rssData(fixVersion) {
         debug('config get Error: fixVersion is not config plane time.');
     }
 
-    if (!util.arrayObjectSearch(taskJira.versions, 'fixVersion', fixVersion)) {
+    if (fixVersion && !util.arrayObjectSearch(taskJira.versions, 'fixVersion', fixVersion)) {
         debug('config get Error: fixVersion is not config plane time.'+ fixVersion);
     }
 
     return new Promise(async (resolve, reject) => {
-        request(sqlJira.taskData, requestAuth, (err, response, body)=> {
-            if (!err && response.statusCode === 200) {
-                xml2js.parseString(body, (err, result)=> {
-                    resolve(formatRssData(util.transJiraRssData(result)));
-                });
-            } else {
-                reject([]);
-                debug(response.statusCode + ':'+ body);
-            }
-        });
+        try {
+            request(sqlJira.taskData, requestAuth, (err, response, body)=> {
+                if (!err && response.statusCode === 200) {
+                    xml2js.parseString(body, (err, result)=> {
+                        resolve(formatRssData(util.transJiraRssData(result)));
+                    });
+                } else {
+                    reject([]);
+                    debug(response.statusCode + ':'+ body);
+                }
+            });
+        } catch (err) {
+            reject([]);
+            debug('rssData Error:' + err);
+        }
     });
 }
 
@@ -71,7 +76,8 @@ function rssData(fixVersion) {
             fixBugsTime: '', // 转测后到P版发布修复BUG花费时间，所有当前版本日志时间总和 不参与任何计算 只是统计
             fixPBugsTime: '', // P版发布后 花费的时间
             testBugsRate: '', // tbugs / devTime 7.5h/天
-            PBugsRate: '' // pbugs / fixPBugsTime 7.5h/天
+            PBugsRate: '', // pbugs / fixPBugsTime 7.5h/天
+            overTime:null // 正式版发布之后日志填写时间 只做统计不纳入计算
         }]
     }]
  */
@@ -119,13 +125,7 @@ function formatRssData(items) {
                     tasks: [{
                         taskName: title,
                         link: link
-                    }],
-                    bugs: '',
-                    reqUpdated: '',
-                    devTime: '',
-                    fixedBugsTime: '',
-                    testBugsRate: '',
-                    PBugsRate: ''
+                    }]
                 });
             }
         } else {
@@ -140,13 +140,7 @@ function formatRssData(items) {
                     tasks: [{
                         taskName: title,
                         link: link
-                    }],
-                    bugs: '',
-                    reqUpdated: '',
-                    devTime: '',
-                    fixedBugsTime: '',
-                    testBugsRate: '',
-                    PBugsRate: ''
+                    }]
                 }]
             };
 
