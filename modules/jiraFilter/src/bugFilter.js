@@ -131,7 +131,7 @@ function statisticsBugs(bugs, versionItem, userName) {
     }
 
     if (user && result.bugs > 0 && user.devTime > 0) {
-        result.testBugsRate = (result.bugs / (user.devTime / 7.5)).toFixed(2);
+        result.testBugsRate = (result.tbugs / (user.devTime / 7.5)).toFixed(2);
     }
 
     if (user && result.pbugs > 0 && user.fixPBugsTime > 0) {

@@ -88,11 +88,11 @@ function statisticsTimeLine(userLogs, result, userName) {
         if (util.date1MoreThanDate2(releaseTestTime, userLog.logTime)) {
             timeLine.devTime += util.transTimeToHourFloat(userLog.spendTime) + util.transTimeToHourFloat(userLog.overTime);
         } else if (releasePTime - releaseTestTime > 0 && util.date1MoreThanDate2(releasePTime, userLog.logTime)) {
-            timeLine.fixBugsTime = util.transTimeToHourFloat(userLog.spendTime) + util.transTimeToHourFloat(userLog.overTime);
+            timeLine.fixBugsTime += util.transTimeToHourFloat(userLog.spendTime) + util.transTimeToHourFloat(userLog.overTime);
         } else if (releaseTime - releasePTime > 0 && util.date1MoreThanDate2(releaseTime, userLog.logTime)) {
-            timeLine.fixPBugsTime = util.transTimeToHourFloat(userLog.spendTime) + util.transTimeToHourFloat(userLog.overTime);
+            timeLine.fixPBugsTime += util.transTimeToHourFloat(userLog.spendTime) + util.transTimeToHourFloat(userLog.overTime);
         } else if (util.date1MoreThanDate2(userLog.logTime, releaseTime)) { // overtime
-            timeLine.overTime = util.transTimeToHourFloat(userLog.spendTime) + util.transTimeToHourFloat(userLog.overTime);
+            timeLine.overTime += util.transTimeToHourFloat(userLog.spendTime) + util.transTimeToHourFloat(userLog.overTime);
         }
     }
 
