@@ -1,4 +1,5 @@
 const router = require('koa-router')();
+const debug = require('debug')('route:home');
 
 // home
 router.get('/', async (ctx, next) => {
