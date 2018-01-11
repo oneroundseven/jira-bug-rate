@@ -7,6 +7,7 @@
     "dev": "./node_modules/.bin/nodemon bin/www",
     "prd": "pm2 start bin/www",
     "watch": "webpack -w",
+    "foundation": "foundation",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "browserslist": [
@@ -21,7 +22,6 @@
     "cheerio": "^1.0.0-rc.2",
     "debug": "^2.6.3",
     "ejs": "^2.5.7",
-    "foundation-sites": "^6.4.4-rc1",
     "koa": "^2.2.0",
     "koa-bodyparser": "^3.2.0",
     "koa-convert": "^1.2.0",
