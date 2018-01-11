@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script type="text/javascript" src="../jquery.js"></script>
+    <script type="text/javascript" src="../../global/_global.js"></script>
+    <script type="text/javascript" src="jquery.validate.silk.js"></script>
+    <style type="text/css">
+        input.error {
+            border:1px solid red;
+        }
+    </style>
+</head>
+<body>
+<form action="">
+    <input type="text" name="namea">
+    <input type="text" name="nameb">
+    <input type="text" name="enOnly" />
+    <p>单字段不可相同</p>
+    <div>
+        <input type="text" name="diff" id="J-diff1" />
+    </div>
+    <div>
+        <input type="text" name="diff" id="J-diff2" />
+    </div>
+    <div>
+    <input type="text" name="diff" id="J-diff3" />
+    </div>
+    <p>多字段组合不可相同</p>
+    <div>
+        <select name="color" data-validCombi="size">
+            <option value="">Please Choose</option>
+            <option value="red">red</option>
+            <option value="blue">red</option>
+            <option value="yellow">red</option>
+        </select>
+        <select name="size">
+            <option value="">Please Choose</option>
+            <option value="XL">XL</option>
+            <option value="XXL">XXL</option>
+            <option value="M">M</option>
+        </select>
+    </div>
+    <div>
+        <select name="color">
+            <option value="">Please Choose</option>
+            <option value="red">red</option>
+            <option value="blue">red</option>
+            <option value="yellow">red</option>
+        </select>
+        <select name="size">
+            <option value="">Please Choose</option>
+            <option value="XL">XL</option>
+            <option value="XXL">XXL</option>
+            <option value="M">M</option>
+        </select>
+    </div>
+    <div>
+        <select name="color">
+            <option value="">Please Choose</option>
+            <option value="red">red</option>
+            <option value="blue">red</option>
+            <option value="yellow">red</option>
+        </select>
+        <select name="size">
+            <option value="">Please Choose</option>
+            <option value="XL">XL</option>
+            <option value="XXL">XXL</option>
+            <option value="M">M</option>
+        </select>
+    </div>
+    <button type="submit">submit</button>
+</form>
+
+<script>
+    $.validator.define('AAA', {
+        namea: {
+            /*regExp: {
+                rule: /a/,
+                message: ['sssssssss', '中文测试']
+            },*/
+            custom: {
+                rule: function(value, el) {
+                    if (value === 'aaa') {
+                        return true;
+                    }
+                    return false;
+                },
+                message: ['english', '中文']
+            }/*,
+            required: {
+                message: ['rrrrrrrrrrrrr', '怎么能为空呢']
+            }*/
+        },
+        nameb: {
+            /*regExp : {
+                rule: /test/,
+                message: ['xxxxxx', '阿斯顿']
+            },
+            required: {
+                message: ['ssssdddddffff', '打算']
+            },*/
+        },
+        enOnly : {
+            required : ['xxxxxx', '阿斯顿']
+        }
+    });
+
+    $.validator.define('BBB', {
+        enOnly: {
+            maxlength: {
+                param: 5,
+                message: ["lalal", "更合适的规划"]
+            }
+        },
+        diff: {
+            different: {
+                message: ['not the same', '不能一样']
+            }
+        }
+    });
+
+    $('form').validate(['AAA', 'BBB'], {
+        submitHandler: function(form, e) {
+            console.log('xxxxxxxxxxxxx');
+            e.preventDefault();
+        },
+        debug: true
+    }, 'zh-CN');
+</script>
+</body>
+</html>
