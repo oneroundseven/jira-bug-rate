@@ -1,0 +1,7 @@
+$pc-max-range: 1280px;
+
+@mixin spring {
+    @media screen and (max-width: $pc-max-range) {
+        @content;
+    }
+}

@@ -1,4 +1,7 @@
+@import "sass/libs/_normalize";
+@import "sass/libs/foundation";
 
-.global {
-    color: green;
-}
+$placeholder-color: #BBB;
+input::-moz-placeholder{ color:$placeholder-color; }
+input::-webkit-input-placeholder{ color:$placeholder-color; }
+input:-ms-input-placeholder{ color:$placeholder-color; }
