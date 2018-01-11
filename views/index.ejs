@@ -3,8 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <title><%=title%></title>
+    <link rel="stylesheet" type="text/css" href="/pages/home.css" />
 </head>
 <body>
+<% if (allTask) { %>
 <ul>
 <% allTask.forEach(function(task, index) { %>
 <li>开发版本:<%=task['fixVersion']%><br/>
@@ -43,5 +45,8 @@
 </li>
 <% }) %>
 </ul>
+<% } %>
+<script type="text/javascript" charset="utf-8" src="/js/libs/jquery.js"></script>
+<script type="text/javascript" charset="utf-8" src="/pages/home.js"></script>
 </body>
 </html>
