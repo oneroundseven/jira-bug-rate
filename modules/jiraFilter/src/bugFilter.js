@@ -67,14 +67,18 @@ function bugFilter(versionItem) {
     }
 
     versionItem.bugs = 0;
+    debug('bugFilter: start group bugs by user.')
     let bugsGroup = groupBugByUser(allTaskAndBugs);
+    debug('bugFilter: end group bugs by user.')
     let tmp;
+    debug('bugFilter: start statistics user bugs rate.')
     for (let user in bugsGroup) {
         tmp = statisticsBugs(bugsGroup[user], versionItem, user);
         if (tmp.bugs > 0) {
             versionItem.bugs += tmp.bugs;
         }
     }
+    debug('bugFilter: end statistics user bugs rate.')
 }
 
 let defaultBugs = {

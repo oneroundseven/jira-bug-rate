@@ -45,11 +45,13 @@ function getAllTaskAndBugs(fixVersion) {
         try {
             request(query, requestAuth, (err, response, body)=> {
                 if (!err && response.statusCode === 200) {
+                    debug('cLogs: all task data success!');
                     xml2js.parseString(body, (err, result)=> {
                         if (err) {
                             reject(err);
                         } else {
                             resolve(util.transJiraRssData(result));
+                            debug('cLogs: all task data xml trans to json & filter success!');
                         }
                     });
                 } else {
@@ -57,7 +59,7 @@ function getAllTaskAndBugs(fixVersion) {
                 }
             });
         } catch (err) {
-            debug('get all task and bugs error:'+ fixVersion + err);
+            debug('cLogs: get all task and bugs error:'+ fixVersion + err);
             reject(err);
         }
 
@@ -71,19 +73,31 @@ function statisticsTime(allTaskAndBugs) {
         return result;
     }
 
-
-
     return new Promise((resolve, reject) => {
         try {
             let tmp;
             let len = new Array(allTaskAndBugs.length);
-            allTaskAndBugs.forEach(async (item, index)=> {
-                tmp = await tranLogTime(item.link[0]);
-                result = result.concat(tmp);
-                len.splice(0,1);
-                if (len.length === 0) {
-                    resolve(result);
-                }
+            debug('cLogs Info: allTaskAndBugs =>'+ allTaskAndBugs.length);
+
+            allTaskAndBugs.forEach((taskOrBug, index)=> {
+                // 增加延迟机制 避免jira因为请求过多挂掉
+                ((item, index)=> {
+                    setTimeout(async ()=> {
+                        try {
+                            debug('cLogs Info: Start get work time, order:'+ index + ', link by:'+  item.link[0])
+                            tmp = await tranLogTime(item.link[0]);
+                            result = result.concat(tmp);
+                        } catch(err) {
+                            debug('cLogs Error: Get jira work time error,'+ item.link[0] + ' Cased By:' + err);
+                        } finally {
+                            len.splice(0,1);
+                            if (len.length === 0) {
+                                resolve(result);
+                            }
+                        }
+                    }, index * 100);
+
+                })(taskOrBug, index);
             });
         } catch (err) {
             reject(err);
@@ -95,6 +109,7 @@ function tranLogTime(link) {
     let result = {};
 
     if (!link) {
+        debug('cLogs Error: Get jira work time error, link is undefined.');
         return result;
     }
 
@@ -109,7 +124,7 @@ function tranLogTime(link) {
                 }
 
             } else {
-                reject(err);
+                reject(err, body);
             }
         });
     });

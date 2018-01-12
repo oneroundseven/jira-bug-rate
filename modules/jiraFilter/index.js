@@ -53,6 +53,7 @@ function updateJiraTask(fixVersion) {
                 if (len.length === 0) {
                     jiraTasks = rss;
                     resolve(rss);
+                    debug('jiraFilter init data Success.');
                 }
             });
         } catch(err) {
@@ -69,7 +70,7 @@ function updateJiraTask(fixVersion) {
  */
 function jiraFilter() {
     return async (ctx, next)=> {
-        ctx._jiraTask = JSON.parse(DEBUG_DATA);
+        ctx._jiraTask = jiraTasks;
         await next();
     }
 }
@@ -78,7 +79,7 @@ process.on('unhandledRejection', (reason, p) => {
     console.log('Unhandled Rejection:', p, 'reason: ', reason);
 });
 
-//updateJiraTask();
+updateJiraTask();
 
 module.exports = {
     filter: jiraFilter,

@@ -45,6 +45,7 @@ function timeLine(logs, versionItem) {
         let groupUser = groupByUser(logs);
         for (let userName in groupUser) {
             statisticsTimeLine(groupUser[userName].logs, result, userName);
+            debug('timeLine Log: trans '+ userName + ' work log time success');
         }
     } catch (err) {
         throw err;
