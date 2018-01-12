@@ -1,12 +1,39 @@
 //@import "~foundation-sites";
 @import "sass/global/global";
+@import "sass/libs/ob/step";
 
 body {
     @include foundation-everything(true, true);
 }
 
 header {
-    .menu-text {
+    .title-bar {
+        background-color: #2c3840;
+    }
+
+    .bugs-log {
+        font-family: 'Proxima Nova', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        color: #fefefe;
+        opacity: 0.75;
+        transition: all 0.25s ease-in-out;
+        cursor: pointer;
+
+        &:hover {
+            opacity: 1;
+            color: #fefefe;
+        }
+    }
+}
+
+.m-step {
+    @include clearfix;
+
+    .time-start {
         font-weight: bold;
+    }
+
+    .time-desc {
+        color: #888888;
+        font-size: 12px;
     }
 }

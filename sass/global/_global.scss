@@ -1,9 +1,20 @@
 @import "sass/libs/_normalize";
 @import "sass/libs/foundation/foundation";
+@import "mixin";
 
 $placeholder-color: #BBB;
 input::-moz-placeholder{ color:$placeholder-color; }
 input::-webkit-input-placeholder{ color:$placeholder-color; }
 input:-ms-input-placeholder{ color:$placeholder-color; }
 
+html {
+    font-size: 14px;
 
+    @include spring {
+        font-size: 12px;
+    }
+}
+
+body {
+    font-family: Roboto, Arial, "\5fae\8f6f\96c5\9ed1", sans-serif;
+}
