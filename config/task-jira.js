@@ -27,5 +27,11 @@ module.exports = {
             releasePTime: '2017-12-01',
             releaseTestTime: '2017-11-17',
             releaseTime: '2017-12-13',
+        },
+        {
+            fixVersion: 'MICEN2_LV_2017.161',
+            releasePTime: '2018-01-12',
+            releaseTestTime: '2017-12-26',
+            releaseTime: '2018-01-25',
         }]
 }
