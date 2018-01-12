@@ -93,7 +93,8 @@ let defaultBugs = {
 
 function statisticsBugs(bugs, versionItem, userName) {
     let result = Object.assign({}, defaultBugs);
-    let bugType;
+    let bugType; // BUG 原因类型
+    let bugIntroductionType; // 缺陷引入类型
     let resolution;
     let bugCreateTime;
 
@@ -102,12 +103,15 @@ function statisticsBugs(bugs, versionItem, userName) {
     let assignee;
 
     bugs.forEach((bug, index)=> {
-        bugType = getBugType(bug['customfields']['customfield']);
+        bugType = getCustomBugType(bug['customfields'][0]['customfield'], 'customfield_10003');
+        bugIntroductionType = getCustomBugType(bug['customfields'][0]['customfield'], 'customfield_10106');
         resolution = bug.resolution[0].$.id;
         bugCreateTime = bug.created[0];
         assignee = bug['assignee'][0]['_'];
 
-        if (isNotFormalBug(bugType) && RESOLUTION_STATUS[resolution] === 'Fixed' || RESOLUTION_STATUS[resolution] === 'Unresolved') {
+        if (RESOLUTION_STATUS[resolution] === 'Req Updated' || bugIntroductionType === '10215') { // 10215 : 需求规格不完整或错误
+            result.reqUpdated++;
+        } else if (isNotFormalBug(bugType) && (RESOLUTION_STATUS[resolution] === 'Fixed' || RESOLUTION_STATUS[resolution] === 'Unresolved')) {
             result.bugs++;
 
             if (util.date1MoreThanDate2(releasePTime, bugCreateTime)){
@@ -115,8 +119,6 @@ function statisticsBugs(bugs, versionItem, userName) {
             } else if (util.date1MoreThanDate2(releaseTime, bugCreateTime)) {
                 result.pbugs++;
             }
-        } else if (RESOLUTION_STATUS[resolution] === 'Req Updated') {
-            result.reqUpdated++;
         } else if (!isNotFormalBug(bugType)) {
             result.formalBug++;
         }
@@ -178,20 +180,26 @@ function groupBugByUser(allTaskAndBugs) {
 }
 
 /**
- * BUG 类型 customfield_10003
+ * BUG 类型 customfield_10003 => 10010 正式版bug
  * BUG 原因分析 customfield_10000
+ * 缺陷引入原因类型 customfield_10106  => 10215 需求规格不完整或错误
  */
-function getBugType(customFields) {
+function getCustomBugType(customFields, customType) {
     let result = null;
     if (!customFields)  return result;
 
     for (let i = 0; i < customFields.length; i++) {
-        if (customFields[i].$.id === 'customfield_10003') {
-            result = customFields[i]['customfieldvalue'][0].$['key'];
+        if (customFields[i].$.id === customType) {
+            result = customFields[i]['customfieldvalues'][0]['customfieldvalue'][0].$['key'];
+            break;
         }
     }
 
-    return null;
+    return result;
+}
+
+function isReqUpdate() {
+
 }
 
 // 是否为正式版bug
