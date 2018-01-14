@@ -80,13 +80,37 @@
             </tr>
             </thead>
             <tbody>
+                <% var testBugs = 0; var pBugs = 0; var reqUpdate = 0; var workTime = 0; %>
                 <% task['users'].forEach(function(user, index) { %>
                 <tr>
                     <td><%=user['assignee']%></td>
-                    <td><%=user['devTime']%>h</td>
-                    <td><%=user['tbugs']%></td>
-                    <td><%=task['bugs']%></td>
-                    <td><%=user['reqUpdated']%></td>
+                    <td>
+                        <% if (user['devTime']) { %>
+                        <%=user['devTime']%> h<br>
+                        <%=(user['devTime']/7.5).toFixed(2)%> days
+                        <% workTime += user['devTime'] %>
+                        <% } else { %>-<% } %>
+                    </td>
+                    <td>
+                        <% if (user['tbugs']) { %>
+                            <%=user['tbugs']%><br>
+                            <% if (user['testBugsRate']) { %><%=user['testBugsRate']%>/day<% } %>
+                            <% testBugs += user['tbugs'] %>
+                        <% } else { %>-<% } %>
+                    </td>
+                    <td>
+                        <% if (user['pbugs']) { %>
+                            <%=user['pbugs']%><br>
+                            <% if (user['PBugsRate']) { %><%=user['PBugsRate']%>/day<% } %>
+                            <% pBugs += user['pbugs'] %>
+                        <% } else { %>-<% } %>
+                    </td>
+                    <td>
+                        <% if (user['reqUpdated']) { %>
+                            <%=user['reqUpdated']%>
+                            <% reqUpdate += user['reqUpdated'] %>
+                        <% } else { %>-<% } %>
+                    </td>
                     <td>
                         <ul>
                         <% user['tasks'].forEach(function(subTask, index) { %>
@@ -98,10 +122,10 @@
                 <% }) %>
                 <tr>
                     <td>总计</td>
-                    <td>246.5 Hour(4.2days)</td>
-                    <td><%=task['bugs']%></td>
-                    <td>77</td>
-                    <td>5</td>
+                    <td><%=workTime%> h<br><%=(workTime/7.5).toFixed(2)%> days</td>
+                    <td><%=testBugs%></td>
+                    <td><%=pBugs%></td>
+                    <td><%=reqUpdate%></td>
                     <td>-</td>
                 </tr>
             </tbody>

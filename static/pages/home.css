@@ -6159,3 +6159,14 @@ header .bugs-log {
   .m-step .time-desc {
     color: #888888;
     font-size: 12px; }
+
+.content-wrap {
+  padding: 20px; }
+  .content-wrap .version-text {
+    font-weight: bold; }
+  .content-wrap .version-bugs table {
+    table-layout: fixed; }
+  .content-wrap .version-bugs ul {
+    list-style: none;
+    padding: 0;
+    margin: 0; }
