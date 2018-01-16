@@ -20,6 +20,7 @@
   ],
   "dependencies": {
     "cheerio": "^1.0.0-rc.2",
+    "commander": "^2.13.0",
     "debug": "^2.6.3",
     "ejs": "^2.5.7",
     "koa": "^2.2.0",
