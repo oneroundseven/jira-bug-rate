@@ -26,7 +26,7 @@ module.exports = {
     taskData: 'http://jira.vemic.com/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?jqlQuery=project%20in%20('+
     projects.join(comma) +')%20AND%20issuetype%20in%20('+
     issuetype.task.join(comma) +')%20AND%20status%20not%20in%20(Aborted)%20AND%20assignee%20in%20('+
-    uedFEUsers.join(comma) +')%20AND%20fixVersion%3D"MICEN2_LV_2017.161"%20AND%20createdDate%20%3E%20'+ overTime +'%20ORDER%20BY%20updatedDate',
+    uedFEUsers.join(comma) +')%20AND%20fixVersion%3D"{{fixVersion}}"%20AND%20createdDate%20%3E%20'+ overTime +'%20ORDER%20BY%20updatedDate',
     versionData: 'http://jira.vemic.com/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?jqlQuery=project%20in%20('+
     projects.join(comma) +')%20AND%20issuetype%20in%20('+
     issuetype.task.concat(issuetype.bug).join(comma) +')%20AND%20status%20not%20in%20(Aborted)%20AND%20assignee%20in%20('+

@@ -35,7 +35,8 @@ function rssData(fixVersion) {
 
     return new Promise(async (resolve, reject) => {
         try {
-            request(sqlJira.taskData, requestAuth, (err, response, body)=> {
+            let query = sqlJira.taskData.replace('{{fixVersion}}', fixVersion);
+            request(query, requestAuth, (err, response, body)=> {
                 if (!err && response.statusCode === 200) {
                     xml2js.parseString(body, (err, result)=> {
                         resolve(formatRssData(util.transJiraRssData(result)));

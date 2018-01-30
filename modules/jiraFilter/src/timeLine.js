@@ -12,11 +12,9 @@ const util = require('./util');
 let defaultTimeLine = {
     devStartTime: null, // 第一次填写日志时间
     devTime: 0,
-    releaseTestTime: null,
     fixBugsTime: 0,
-    releasePTime: null,
     fixPBugsTime: 0,
-    releaseTime:null
+    overTime: 0
 };
 
 
@@ -73,11 +71,11 @@ function timeLine(logs, versionItem) {
 function statisticsTimeLine(userLogs, result, userName) {
     let userLog;
     let users = result.users;
-    let timeLine = Object.assign({}, defaultTimeLine, result);
+    let timeLine = Object.assign({}, defaultTimeLine);
 
-    let releaseTestTime = util.transTimeTo0(timeLine.releaseTestTime);
-    let releasePTime = util.transTimeTo0(timeLine.releasePTime);
-    let releaseTime = util.transTimeTo24(timeLine.releaseTime);
+    let releaseTestTime = util.transTimeTo0(result.releaseTestTime);
+    let releasePTime = util.transTimeTo0(result.releasePTime);
+    let releaseTime = util.transTimeTo24(result.releaseTime);
 
     for (let i = 0; i < userLogs.length; i++) {
         userLog = userLogs[i];

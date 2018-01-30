@@ -23,6 +23,7 @@ function getCacheData() {
                 try {
                     resolve(JSON.parse(data));
                 } catch (e) {
+                    reject(e);
                     debug('cache Error: trans data error '+ e);
                 }
             });
@@ -34,8 +35,22 @@ function getCacheData() {
 
 }
 
-function reWriteCacheData() {
+function reWriteCacheData(data) {
+    return new Promise(async (resolve, reject) => {
+        let cache = await getCacheData();
+        let version = data['fixVersion'];
+        delete data['allTaskAndBugs'];
+        cache[version] = JSON.stringify(data);
 
+        if (data) {
+            fs.writeFile(localData, JSON.stringify(cache), 'utf-8', (err)=> {
+                if (err) {
+                    debug('cache Error: write data error.');
+                    throw err;
+                }
+            });
+        }
+    })
 }
 
 

@@ -11,10 +11,6 @@ const cLogs = require('./src/cLogs');
 const rssData = require('./src/rssData');
 const timeLine = require('./src/timeLine');
 const bugFilter = require('./src/bugFilter');
-const fs = require('fs');
-const path = require('path');
-
-let jiraTasks;
 
 /**
  * 更新数据缓存，可以指定单个版本更新或者全部更新
@@ -22,15 +18,12 @@ let jiraTasks;
  */
 function updateJiraTask(fixVersion) {
 
-    if (!jiraTasks && fixVersion) {
-        debug('updateJiraTask Error: global cache do not exist.');
+    if (!fixVersion) {
+        debug('updateJiraTask Error: fixVersion must be exist.');
         return;
     }
 
-    if (fixVersion && !util.arrayObjectSearch('fixVerion'), fixVersion) {
-        debug('updateJiraTask Error: version cache do not exist.' + fixVersion);
-        return;
-    }
+    // 检测版本是否配置过task-jira
 
     return new Promise(async (resolve, reject) => {
         try {
@@ -51,7 +44,6 @@ function updateJiraTask(fixVersion) {
                 }
 
                 if (len.length === 0) {
-                    jiraTasks = rss;
                     resolve(rss);
                     debug('jiraFilter init data Success.');
                 }

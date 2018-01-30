@@ -8,6 +8,7 @@
 const jiraData = require('./data');
 const debug = require('debug')('run:jiraFilter');
 const program = require('commander');
+const cache = require('./cache');
 
 program
     .version('0.1.0')
@@ -28,7 +29,10 @@ const DEBUG_DATA = '[{"fixVersion":"MICEN2_VOC_2017.12","releasePTime":"2017-12-
 
 if (program.load) {
     debug('start get jira version data: '+ program.load);
-    jiraData(program.load);
+    (async ()=> {
+        let data = await jiraData(program.load);
+        cache.set(data[0]);
+    })();
 } else {
     debug('version must be input.')
 }
