@@ -27,6 +27,7 @@ function reFreshData() {
 setInterval(()=> {
     reFreshData();
 }, timerGap);
+reFreshData();
 
 /**
  * koa-middle wave
