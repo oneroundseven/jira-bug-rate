@@ -19,7 +19,7 @@ app.use(bodyparser({
 }))
 app.use(json())
 app.use(logger())
-app.use(jira.filter());
+app.use(jira());
 app.use(require('koa-static')(__dirname + '/static'))
 
 app.use(views(__dirname + '/views', {

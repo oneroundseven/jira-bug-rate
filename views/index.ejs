@@ -13,10 +13,12 @@
             <a class="title-bar-title bugs-log" href="/">BUG <strong>Rate</strong></a>
         </div>
         <div class="title-bar-right">
-            <ul class="menu float-right">
-                <li><input type="search" placeholder="Search"></li>
-                <li><button type="button" class="button">Search</button></li>
-            </ul>
+            <form action="/search" method="get">
+                <ul class="menu float-right">
+                    <li><input name="version" required type="search" placeholder="Search"></li>
+                    <li><button type="submit" class="button">Search</button></li>
+                </ul>
+            </form>
         </div>
     </div>
 </header>

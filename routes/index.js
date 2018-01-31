@@ -9,4 +9,23 @@ router.get('/', async (ctx, next) => {
     });
 });
 
+router.get('/search', async (ctx, next)=> {
+    let result = [];
+    let localCacheData = ctx._jiraTask;
+    let version = ctx.query.version;
+
+    if (localCacheData) {
+        localCacheData.each((version)=> {
+            if (version['fixVersion'].indexOf(version) !== -1) {
+                result.push(version);
+            }
+        });
+    }
+
+    await ctx.render('index', {
+        title: 'Bugs Rate',
+        allTask: result
+    });
+});
+
 module.exports = router;
