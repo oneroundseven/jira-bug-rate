@@ -9,12 +9,12 @@ const fs = require('fs');
 const path = require('path');
 const debug = require('debug')('cache:*');
 
-const localData = path.resolve(process.cwd(), './data/local.json');
+const localDir = path.resolve(process.cwd(), './data/local.json');
 
-function getCacheData() {
+function localCacheData() {
     return new Promise((resolve, reject) => {
         try {
-            fs.readFile(localData, 'utf8', (err, data)=> {
+            fs.readFile(localDir, 'utf8', (err, data)=> {
                 if (err) {
                     debug('cache Error:'+ err);
                     throw err;
@@ -37,13 +37,13 @@ function getCacheData() {
 
 function reWriteCacheData(data) {
     return new Promise(async (resolve, reject) => {
-        let cache = await getCacheData();
+        let cache = await localCacheData();
         let version = data['fixVersion'];
         delete data['allTaskAndBugs'];
-        cache[version] = JSON.stringify(data);
+        cache[version] = data;
 
         if (data) {
-            fs.writeFile(localData, JSON.stringify(cache), 'utf-8', (err)=> {
+            fs.writeFile(localDir, JSON.stringify(cache), 'utf-8', (err)=> {
                 if (err) {
                     debug('cache Error: write data error.');
                     throw err;
@@ -55,6 +55,6 @@ function reWriteCacheData(data) {
 
 
 module.exports = {
-    get: getCacheData,
+    get: localCacheData,
     set: reWriteCacheData
 };

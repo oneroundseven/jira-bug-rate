@@ -7,26 +7,19 @@
  */
 
 const debug = require('debug')('jira:jiraFilter');
-const fs = require('fs');
-const path = require('path');
+const cache = require('./cache');
 
 const timerGap = 10 * 60 * 1000;
 
-const localData = path.resolve(process.cwd(), './data/local.json');
-
-let cacheData = null;
+let localCacheData = null;
 
 function reFreshData() {
-    fs.readFile(localData, 'utf8', (err, data)=> {
-        if (err) {
-            debug('jiraTimer Error:'+ err);
-            throw err;
-        }
-
+    return new Promise(async (resolve, reject) => {
         try {
-            cacheData = JSON.parse(data);
+            localCacheData = await cache.get();
+            resolve();
         } catch (e) {
-            debug('jiraTimer Error: trans data error '+ e);
+            reject(e);
         }
     });
 }
@@ -41,7 +34,7 @@ setInterval(()=> {
  */
 function jiraTimer() {
     return async (ctx, next)=> {
-        ctx._jiraTask = cacheData;
+        ctx._jiraTask = localCacheData;
         await next();
     }
 }
