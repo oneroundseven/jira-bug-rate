@@ -22,7 +22,7 @@
         </div>
     </div>
 </header>
-<% if (allTask) { %>
+<% if (allTask && allTask.length > 0) { %>
 <div class="content-wrap">
     <% allTask.forEach(function(task, index) { %>
     <h3 class="version-text"><%=task['fixVersion']%></h3>
@@ -134,6 +134,12 @@
         </table>
     </div>
     <% }) %>
+</div>
+<% } else { %>
+<div class="content-wrap">
+    <div class="no-result">
+        没有任何结果
+    </div>
 </div>
 <% } %>
 
