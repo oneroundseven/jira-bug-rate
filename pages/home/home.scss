@@ -27,6 +27,7 @@ header {
 
 .m-step {
     @include clearfix;
+    margin: 0;
 
     .time-start {
         font-weight: bold;
@@ -39,15 +40,42 @@ header {
 }
 
 .content-wrap {
+    max-width: 1440px;
+    margin: 0 auto;
     padding: 20px;
 
     .version-text {
         font-weight: bold;
+        margin-bottom: 40px;
     }
 
     .version-bugs {
+        margin-top: 35px;
+
         table {
             table-layout: fixed;
+
+            .bugs {
+                display: inline-block;
+                width: 30px;
+                margin-right: 5px;
+                font-size: 14px;
+                font-weight: bold;
+            }
+
+            .req-update {
+                font-weight: bold;
+            }
+
+            .fi-star {
+                color: #30bc0d;
+                font-size: 18px;
+            }
+
+            .fi-skull {
+                color: red;
+                font-size: 24px;
+            }
         }
 
         ul {
@@ -64,4 +92,13 @@ header {
     font-weight: bold;
     text-align: center;
     color: red;
+}
+
+.label {
+    border-radius: 3px!important;
+}
+
+hr {
+    max-width: 1366px!important;
+    margin: 40px auto!important;
 }

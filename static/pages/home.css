@@ -6148,7 +6148,8 @@ header .bugs-log {
     color: #fefefe; }
 
 .m-step {
-  *zoom: 1; }
+  *zoom: 1;
+  margin: 0; }
   .m-step:before, .m-step:after {
     content: "";
     display: table; }
@@ -6161,15 +6162,34 @@ header .bugs-log {
     font-size: 12px; }
 
 .content-wrap {
+  max-width: 1440px;
+  margin: 0 auto;
   padding: 20px; }
   .content-wrap .version-text {
-    font-weight: bold; }
-  .content-wrap .version-bugs table {
-    table-layout: fixed; }
-  .content-wrap .version-bugs ul {
-    list-style: none;
-    padding: 0;
-    margin: 0; }
+    font-weight: bold;
+    margin-bottom: 40px; }
+  .content-wrap .version-bugs {
+    margin-top: 35px; }
+    .content-wrap .version-bugs table {
+      table-layout: fixed; }
+      .content-wrap .version-bugs table .bugs {
+        display: inline-block;
+        width: 30px;
+        margin-right: 5px;
+        font-size: 14px;
+        font-weight: bold; }
+      .content-wrap .version-bugs table .req-update {
+        font-weight: bold; }
+      .content-wrap .version-bugs table .fi-star {
+        color: #30bc0d;
+        font-size: 18px; }
+      .content-wrap .version-bugs table .fi-skull {
+        color: red;
+        font-size: 24px; }
+    .content-wrap .version-bugs ul {
+      list-style: none;
+      padding: 0;
+      margin: 0; }
 
 .no-result {
   margin-top: 100px;
@@ -6177,3 +6197,10 @@ header .bugs-log {
   font-weight: bold;
   text-align: center;
   color: red; }
+
+.label {
+  border-radius: 3px !important; }
+
+hr {
+  max-width: 1366px !important;
+  margin: 40px auto !important; }
