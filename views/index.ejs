@@ -15,7 +15,7 @@
         <div class="title-bar-right">
             <form action="/search" method="get">
                 <ul class="menu float-right">
-                    <li><input name="version" required type="search" placeholder="Search"></li>
+                    <li><input name="version" required type="search" placeholder="Search" <% if (typeof hisSearch !== 'undefined') { %> value="<%=hisSearch%>" <% } %> /></li>
                     <li><button type="submit" class="button">Search</button></li>
                 </ul>
             </form>
@@ -23,8 +23,8 @@
     </div>
 </header>
 <% if (allTask && allTask.length > 0) { %>
+<% allTask.forEach(function(task, index) { %>
 <div class="content-wrap">
-    <% allTask.forEach(function(task, index) { %>
     <h3 class="version-text"><%=task['fixVersion']%></h3>
     <div class="version-timeline">
         <div class="m-step step-5">
@@ -133,8 +133,11 @@
             </tbody>
         </table>
     </div>
-    <% }) %>
 </div>
+<% if (allTask.length - 1 !== index) { %>
+    <hr>
+<% } %>
+<% }) %>
 <% } else { %>
 <div class="content-wrap">
     <div class="no-result">
@@ -142,47 +145,6 @@
     </div>
 </div>
 <% } %>
-
-<!--<% if (allTask) { %>
-<ul>
-<% allTask.forEach(function(task, index) { %>
-<li>开发版本:<%=task['fixVersion']%><br/>
-    <% if (task['releaseTestTime']) { %>转测时间:<%=task['releaseTestTime']%><% } %><br/>
-    <% if (task['releasePTime']) { %>P版时间:<%=task['releasePTime']%><% } %><br/>
-    <% if (task['releaseTime']) { %>正式版时间:<%=task['releaseTime']%><% } %><br/>
-    bug总数:<%=task['bugs']%>
-    <dl>
-        <dt>前端工程师</dt>
-        <% task['users'].forEach(function(user, index) { %>
-        <dd>
-            <dl>
-                <dt><%=user['assignee']%></dt>
-                <dd>bug数:<%=user['bugs']%></dd>
-                <dd>测试版bug数:<%=user['tbugs']%></dd>
-                <dd>P版bug数:<%=user['pbugs']%></dd>
-                <dd>需求变更数:<%=user['reqUpdated']%></dd>
-                <dd>开发开始时间:<%=user['devStartTime']%></dd>
-                <dd>开发花费时间:<%=user['devTime']%>h</dd>
-                <dd>解决测试bug时间:<%=user['fixBugsTime']%>h</dd>
-                <dd>解决P版bug时间:<%=user['fixPBugsTime']%>h</dd>
-                <dd>bug率:<%=user['testBugsRate']%>/day</dd>
-                <dd>P版bug率:<%=user['PBugsRate']%>/day</dd>
-                <dd>解决正式版bug:<%=user['formalBug']%>个</dd>
-                <dl>
-                    <dt>相关任务</dt>
-                    <% user['tasks'].forEach(function(subTask, index) { %>
-                        <dd><a href="<%=subTask['link']%>" target="_blank"><%=subTask['taskName']%></a></dd>
-                    <% }) %>
-                </dl>
-            </dl>
-        </dd>
-
-        <% }) %>
-    </dl>
-</li>
-<% }) %>
-</ul>
-<% } %>-->
 <script type="text/javascript" charset="utf-8" src="/js/libs/jquery.js"></script>
 <script type="text/javascript" charset="utf-8" src="/pages/home.js"></script>
 </body>

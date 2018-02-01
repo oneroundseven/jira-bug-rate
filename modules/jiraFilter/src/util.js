@@ -32,6 +32,27 @@ module.exports = {
 
         return result;
     },
+    // 数组有则替换 没则增加
+    arraySearchReplaceInsert: (arr, fieldName, value, data)=> {
+        if (!arr || !fieldName || !value) {
+            debug('searchObject Error:'+ fieldName + '=>' + value);
+            return;
+        }
+
+        let isExist = false;
+
+        for (let i = 0; i < arr.length; i++) {
+            if (arr[i] && arr[i][fieldName] === value) {
+                arr.splice(i, 1, data);
+                isExist = true;
+                break;
+            }
+        }
+
+        if (!isExist) {
+            arr.push(data);
+        }
+    },
     transJiraRssData: (jiraRssJson)=> {
         let result = {};
 

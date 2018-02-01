@@ -12,11 +12,11 @@ router.get('/', async (ctx, next) => {
 router.get('/search', async (ctx, next)=> {
     let result = [];
     let localCacheData = ctx._jiraTask;
-    let version = ctx.query.version;
+    let searchArgs = ctx.query.version;
 
     if (localCacheData) {
-        localCacheData.each((version)=> {
-            if (version['fixVersion'].indexOf(version) !== -1) {
+        localCacheData.forEach((version)=> {
+            if (version['fixVersion'].indexOf(searchArgs) !== -1) {
                 result.push(version);
             }
         });
@@ -24,7 +24,8 @@ router.get('/search', async (ctx, next)=> {
 
     await ctx.render('index', {
         title: 'Bugs Rate',
-        allTask: result
+        allTask: result,
+        hisSearch: searchArgs
     });
 });
 
