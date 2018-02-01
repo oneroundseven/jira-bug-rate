@@ -10,7 +10,8 @@ module.exports = {
         'user': 'sheny',
         'pass': '15531685',
     },
-    versions: [{
+    versions: [
+        {
             fixVersion: 'MICEN2_VOC_2017.12',
             releasePTime: '2017-12-25',
             releaseTestTime: '2017-12-18', // 时间如果携带大于0点的小时 则当天日志纳入开发时间， 如果不带小时 则当天日志时间默认不纳入开发时间
@@ -23,15 +24,46 @@ module.exports = {
             releaseTime: '2017-12-28',
         },
         {
+            fixVersion: 'MICEN2_VOC_2017.11',
+            releasePTime: '2017-11-28',
+            releaseTestTime: '2017-11-20',
+            releaseTime: '2017-12-07'
+        },
+        {
+            fixVersion: 'MICEN2_VOC_2018.01',
+            releasePTime: '2018-01-22',
+            releaseTestTime: '2018-01-10',
+            releaseTime: '2018-01-25'
+        },
+        {
+            fixVersion: 'MICEN2_LV_2017.130',
+            releasePTime: '2017-11-10',
+            releaseTestTime: '2017-10-20',
+            releaseTime: '2017-11-27'
+        },
+        {
             fixVersion: 'MICEN2_LV_2017.157',
-            releasePTime: '2017-12-01',
+            releasePTime: '2017-12-07',
             releaseTestTime: '2017-11-17',
-            releaseTime: '2017-12-13',
+            releaseTime: '2017-12-13'
+        },
+        {
+            fixVersion: 'MICEN2_LV_2017.154',
+            releasePTime: '2018-01-05',
+            releaseTestTime: '2017-12-22',
+            releaseTime: '2018-01-16'
         },
         {
             fixVersion: 'MICEN2_LV_2017.161',
-            releasePTime: '2018-01-12',
-            releaseTestTime: '2017-12-26',
-            releaseTime: '2018-01-25',
-        }]
+            releasePTime: '2018-01-15',
+            releaseTestTime: '2017-12-07',
+            releaseTime: '2018-01-23'
+        },
+        {
+            fixVersion: 'SILK_LV_2017.18',
+            releasePTime: '2018-02-02',
+            releaseTestTime: '2018-01-17',
+            releaseTime: '2018-02-06'
+        }
+    ]
 }
