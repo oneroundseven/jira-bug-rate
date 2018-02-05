@@ -138,8 +138,8 @@
                         <% if (user['pbugs']) { %>
                             <span class="bugs"><%=user['pbugs']%></span>
                             <% if (user['PBugsRate']) { %>
-                                <span class="label <% if (user['testBugsRate'] < 1) { %>success<% } %>
-                                    <% if (user['testBugsRate'] >= 1) { %>alert<% } %>
+                                <span class="label <% if (user['PBugsRate'] < 1) { %>success<% } %>
+                                    <% if (user['PBugsRate'] >= 1) { %>alert<% } %>
                                     ">
                                 <%=user['PBugsRate']%>/day
                                 </span>
