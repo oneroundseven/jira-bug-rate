@@ -20,7 +20,8 @@ let defaultTimeLine = {
 
 
 function timeLine(logs, versionItem) {
-    let result = Object.assign({}, versionItem);
+    //let result = Object.assign({}, versionItem);
+    let result = versionItem;
     let now = new Date();
     now = util.transTimeTo24(now.toString());
 
@@ -41,6 +42,7 @@ function timeLine(logs, versionItem) {
 
     try {
         let groupUser = groupByUser(logs);
+        getFirstLogTime(logs, result);
         for (let userName in groupUser) {
             statisticsTimeLine(groupUser[userName].logs, result, userName);
             debug('timeLine Log: trans '+ userName + ' work log time success');
@@ -52,6 +54,29 @@ function timeLine(logs, versionItem) {
     return result;
 }
 
+/**
+ * 从所有日志中找到时间最早的那个日志时间
+ * @param logs
+ */
+function getFirstLogTime(logs, result) {
+    result.devStartTime = null;
+
+    logs.forEach((log, index)=> {
+        if (result.devStartTime === null) {
+            result.devStartTime = log.logTime;
+        }
+
+        if (util.date1MoreThanDate2(result.devStartTime, log.logTime)) {
+            result.devStartTime = log.logTime;
+        }
+    });
+
+    if (result.devStartTime) {
+        let tmp = new Date(result.devStartTime);
+        result.devStartTime = tmp.getFullYear() + '-' + (tmp.getMonth() + 1) + '-' + tmp.getDate();
+    }
+}
+
 /*{
     "logTime": "2017/11/07 11:00 PM",
     "spendTime": "7 hours, 30 minutes",
@@ -59,7 +84,6 @@ function timeLine(logs, versionItem) {
     "userName": "&#x5218;&#x5F64;&#x5F64;",
     "assignee": "sss"
 
-    devStartTime: null, // 第一次填写日志时间
     devTime: null,
     releaseTestTime: null,
     fixBugsTime: null,
@@ -79,10 +103,6 @@ function statisticsTimeLine(userLogs, result, userName) {
 
     for (let i = 0; i < userLogs.length; i++) {
         userLog = userLogs[i];
-
-        if (i === 0) {
-            timeLine.devStartTime = userLog.logTime;
-        }
 
         if (util.date1MoreThanDate2(releaseTestTime, userLog.logTime)) {
             timeLine.devTime += util.transTimeToHourFloat(userLog.spendTime) + util.transTimeToHourFloat(userLog.overTime);

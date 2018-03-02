@@ -33,7 +33,7 @@
                 <span class="dot"></span>
                 <i class="line"></i>
                 <div class="txt-box">
-                    <div class="time-start">2017-12-18</div>
+                    <div class="time-start"><% if (task['devStartTime']) { %><%=task['devStartTime']%><% } else { %>-<% } %></div>
                     <div class="time-desc">Start Dev</div>
                 </div>
             </div>

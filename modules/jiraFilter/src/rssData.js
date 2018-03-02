@@ -56,6 +56,7 @@ function rssData(fixVersion) {
 /**
  *  [{
         fixVersion: '',
+        devStartTime: '', 第一次填写日志时间
         releasePTime: '', // config 文件导入
         releaseTestTime: '', // config 文件导入
         releaseTime: '', // config 文件导入
@@ -72,7 +73,6 @@ function rssData(fixVersion) {
             tbugs: 0, // 测试版产生bug数
             reqUpdated: 0, // 第一日志时间到发布正式版时间范围内需求变更数
             overTime: '', // 开发时间为大于转测时间，则统计正式版发布之前所有花费时间
-            devStartTime: '', 第一次填写日志时间 如果开发开始时间大于测试时间 则后面所有时间全部返回 -1 直接取所有日志时间和所有bug数进行bug率计算
             devTime: '', // 第一日填写日志到转测花费时间 记为开发时间
             fixBugsTime: '', // 转测后到P版发布修复BUG花费时间，所有当前版本日志时间总和 不参与任何计算 只是统计
             fixPBugsTime: '', // P版发布后 花费的时间
