@@ -22,7 +22,7 @@ function localCacheData() {
                 }
 
                 try {
-                    resolve(JSON.parse(data));
+                    resolve(localDataInOrder(JSON.parse(data)));
                 } catch (e) {
                     reject(e);
                     debug('cache Error: trans data error '+ e);
@@ -34,6 +34,20 @@ function localCacheData() {
         }
     });
 
+}
+
+function localDataInOrder(json) {
+    if (json.length > 0) {
+        json.sort((item1, item2)=> {
+            if (item1.releaseTime && item2.releaseTime) {
+                return new Date(item1.releaseTime) < new Date(item2.releaseTime);
+            } else {
+                return 0;
+            }
+        });
+    }
+
+    return json;
 }
 
 function reWriteCacheData(data) {
