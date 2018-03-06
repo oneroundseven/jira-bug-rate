@@ -75,7 +75,8 @@
             <thead>
             <tr>
                 <th width="150">FE Developer</th>
-                <th>Dev Time</th>
+                <th>Cost Time
+                </th>
                 <th>Test Bugs</th>
                 <th>Release P Bugs</th>
                 <th>Req Update</th>
@@ -115,10 +116,19 @@
                         <% } %>
                     </td>
                     <td>
+                        D:
                         <% if (user['devTime']) { %>
-                        <%=user['devTime']%> h<br>
-                        <%=(user['devTime']/7.5).toFixed(2)%> days
-                        <% workTime += user['devTime'] %>
+                            <%=user['devTime']%>h <span class="cost-time-desc">(<%=(user['devTime']/7.5).toFixed(2)%>days)</span> <% workTime += user['devTime'] %><br>
+                        <% } else { %>-<br><% } %>
+
+                        T:
+                        <% if (user['fixBugsTime']) { %>
+                        <%=user['fixBugsTime']%>h <span class="cost-time-desc">(<%=(user['fixBugsTime']/7.5).toFixed(2)%>days)</span> <% workTime += user['fixBugsTime'] %><br>
+                        <% } else { %>-<br><% } %>
+
+                        P:
+                        <% if (user['fixPBugsTime']) { %>
+                        <%=user['fixPBugsTime']%>h <span class="cost-time-desc">(<%=(user['fixPBugsTime']/7.5).toFixed(2)%>days)</span> <% workTime += user['fixPBugsTime'] %><br>
                         <% } else { %>-<% } %>
                     </td>
                     <td>
