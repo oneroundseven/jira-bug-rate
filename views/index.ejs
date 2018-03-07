@@ -91,19 +91,19 @@
                         <% if (user['testBugsRate'] > 0) { %>
                             <%
                                 var starCount = 0;
-                                if (user['testBugsRate'] < 2.46) {
+                                if (user['testBugsRate'] < 2.6) {
                                     starCount = 1;
                                 }
 
-                                if (user['testBugsRate'] < 1.5) {
+                                if (user['testBugsRate'] < 2) {
                                     starCount = 2;
                                 }
 
-                                if (user['testBugsRate'] < 1) {
+                                if (user['testBugsRate'] < 1.5) {
                                     starCount = 4;
                                 }
 
-                                if (user['testBugsRate'] < 0.5) {
+                                if (user['testBugsRate'] < 1) {
                                     starCount = 7;
                                 }
                             %>
