@@ -38,9 +38,9 @@ function localCacheData() {
 
 function localDataInOrder(json) {
     if (json.length > 0) {
-        json.sort((item1, item2)=> {
+        json. sort((item1, item2)=> {
             if (item1.releaseTime && item2.releaseTime) {
-                return new Date(item1.releaseTime) < new Date(item2.releaseTime);
+                return new Date(item2.releaseTime).getTime() - new Date(item1.releaseTime).getTime();
             } else {
                 return 0;
             }
