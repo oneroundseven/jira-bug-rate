@@ -12,6 +12,24 @@ module.exports = {
     },
     versions: [
         {
+            fixVersion: 'MICEN2_LV_2018.21',
+            releasePTime: '2018-03-28',
+            releaseTestTime: '2018-03-20',
+            releaseTime: '2018-04-03',
+        },
+        {
+            fixVersion: 'MICEN2_VOC_2018.04',
+            releasePTime: '2018-04-18',
+            releaseTestTime: '2018-04-08',
+            releaseTime: '2018-04-19',
+        },
+        {
+            fixVersion: 'SILK_LV_2018.06',
+            releasePTime: '2018-04-18',
+            releaseTestTime: '2018-04-03',
+            releaseTime: '2018-04-24',
+        },
+        {
             fixVersion: 'SILK_LV_2018.03',
             releasePTime: '2018-03-20',
             releaseTestTime: '2018-03-06',
