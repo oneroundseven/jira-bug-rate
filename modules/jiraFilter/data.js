@@ -6,14 +6,14 @@
  */
 
 const debug = require('debug')('jira:jiraFilter');
-const util = require('./src/util');
-const cLogs = require('./src/cLogs');
-const rssData = require('./src/rssData');
-const timeLine = require('./src/timeLine');
-const bugFilter = require('./src/bugFilter');
+const cLogs = require('./core/cLogs');
+const rssData = require('./core/rssData');
+const timeLine = require('./core/timeLine');
+const bugFilter = require('./core/bugFilter');
 
 /**
  * 更新数据缓存，可以指定单个版本更新或者全部更新
+ * 返回json数据
  * @param {String} [fixVersion]
  */
 function updateJiraTask(fixVersion) {
@@ -24,7 +24,6 @@ function updateJiraTask(fixVersion) {
     }
 
     // 检测版本是否配置过task-jira
-
     return new Promise(async (resolve, reject) => {
         try {
             let rss = await rssData(fixVersion);
@@ -58,8 +57,5 @@ function updateJiraTask(fixVersion) {
 process.on('unhandledRejection', (reason, p) => {
     debug('Unhandled Rejection:', p, 'reason: ', reason);
 });
-
-
-
 
 module.exports = updateJiraTask;

@@ -7,7 +7,7 @@
  */
 
 const debug = require('debug')('jira:jiraFilter');
-const cache = require('./cache');
+
 
 const timerGap = 10 * 60 * 1000;
 
@@ -16,7 +16,7 @@ let localCacheData = null;
 function reFreshData() {
     return new Promise(async (resolve, reject) => {
         try {
-            localCacheData = await cache.get();
+            //localCacheData = await cache.get();
             resolve();
         } catch (e) {
             reject(e);

@@ -5,50 +5,35 @@
  * @author oneroundseven@gmail.com
  */
 
-const request = require('request');
-const xml2js = require('xml2js');
+const request = require('../request');
 const path = require('path');
 const debug = require('debug')('jira:rssData');
 const util = require('./util');
 
 let cwd = process.cwd();
 const sqlJira = require(path.resolve(cwd, 'config/sql-jira'));
-const taskJira = require(path.resolve(cwd, 'config/task-jira'));
 
-let requestAuth = {
-    'auth': Object.assign({}, taskJira.auth, { sendImmediately: true })
-};
 
 /**
  * @param {String} [fixVersion]
  * @returns {Promise<any>}
  */
 function rssData(fixVersion) {
-
-    if (!taskJira.versions || taskJira.versions.length === 0) {
+    if (!fixVersion) {
         debug('config get Error: fixVersion is not config plane time.');
     }
 
-    if (fixVersion && !util.arrayObjectSearch(taskJira.versions, 'fixVersion', fixVersion)) {
-        debug('config get Error: fixVersion is not config plane time.'+ fixVersion);
-    }
-
-    return new Promise(async (resolve, reject) => {
+    return new Promise((resolve, reject) => {
         try {
-            let query = sqlJira.taskData.replace('{{fixVersion}}', fixVersion);
-            request(query, requestAuth, (err, response, body)=> {
-                if (!err && response.statusCode === 200) {
-                    xml2js.parseString(body, (err, result)=> {
-                        resolve(formatRssData(util.transJiraRssData(result)));
-                    });
-                } else {
-                    reject([]);
-                    debug(response.statusCode + ':'+ body);
-                }
+            request.xmlRequest(sqlJira.taskData.replace('{{fixVersion}}', fixVersion)).then(result=> {
+                resolve(formatRssData(result));
+            }).catch(err=> {
+                reject([]);
+                debug('rssData Error:' + err);
             });
         } catch (err) {
             reject([]);
-            debug('rssData Error:' + err);
+
         }
     });
 }
@@ -144,13 +129,6 @@ function formatRssData(items) {
                     }]
                 }]
             };
-
-            if (taskJira) {
-                progressTmp = util.arrayObjectSearch(taskJira.versions, 'fixVersion', fixVersion);
-                if (progressTmp) {
-                    version = Object.assign(version, progressTmp);
-                }
-            }
 
             result.push(version);
         }

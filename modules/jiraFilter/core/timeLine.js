@@ -5,7 +5,6 @@
  * @author oneroundseven@gmail.com
  */
 
-const path =require('path');
 const debug = require('debug')('jira:timeLine');
 const util = require('./util');
 

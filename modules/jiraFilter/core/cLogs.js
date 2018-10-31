@@ -5,64 +5,30 @@
  * @author oneroundseven@gmail.com
  */
 
-const request = require('request');
+const request = require('../request');
 const cheerio = require('cheerio');
-const xml2js = require('xml2js');
 const path = require('path');
 const debug = require('debug')('jira:cLogs');
-const util = require('./util');
 
 let cwd = process.cwd();
 const sqlJira = require(path.resolve(cwd, 'config/sql-jira'));
-const taskJira = require(path.resolve(cwd, 'config/task-jira'));
 const workLogArgs = '?page=com.focustech.jira.focusjiraimprovement:worklog-tabpanel';
 
-let requestAuth = {
-    'auth': Object.assign({}, taskJira.auth, { sendImmediately: true })
-};
 
 function cLogs (versionItem) {
     return new Promise(async (resolve, reject) => {
-        let result;
-
+        let result = [];
+        if (!versionItem) {
+            resolve(result);
+        }
         try {
-            let allTaskAndBugs = await getAllTaskAndBugs(versionItem.fixVersion);
+            let allTaskAndBugs = await request.xmlRequest(sqlJira.versionData.replace('{{fixVersion}}', versionItem.fixVersion));
             versionItem.allTaskAndBugs = allTaskAndBugs;
             result = await statisticsTime(allTaskAndBugs);
             resolve(result);
         } catch (err) {
             reject(err);
         }
-    });
-}
-
-function getAllTaskAndBugs(fixVersion) {
-    let result = [];
-    if (!fixVersion) return result;
-
-    return new Promise((resolve, reject) => {
-        let query = sqlJira.versionData.replace('{{fixVersion}}', fixVersion);
-        try {
-            request(query, requestAuth, (err, response, body)=> {
-                if (!err && response.statusCode === 200) {
-                    debug('cLogs: all task data success!');
-                    xml2js.parseString(body, (err, result)=> {
-                        if (err) {
-                            reject(err);
-                        } else {
-                            resolve(util.transJiraRssData(result));
-                            debug('cLogs: all task data xml trans to json & filter success!');
-                        }
-                    });
-                } else {
-                    reject(err);
-                }
-            });
-        } catch (err) {
-            debug('cLogs: get all task and bugs error:'+ fixVersion + err);
-            reject(err);
-        }
-
     });
 }
 
@@ -85,8 +51,8 @@ function statisticsTime(allTaskAndBugs) {
                     setTimeout(async ()=> {
                         try {
                             debug('cLogs Info: Start get work time, order:'+ index + ', link by:'+  item.link[0])
-                            tmp = await tranLogTime(item.link[0]);
-                            result = result.concat(tmp);
+                            tmp = await request.htmlRequest(item.link[0]+ workLogArgs);
+                            result = result.concat(parsePage(tmp));
                         } catch(err) {
                             debug('cLogs Error: Get jira work time error,'+ item.link[0] + ' Cased By:' + err);
                         } finally {
@@ -102,31 +68,6 @@ function statisticsTime(allTaskAndBugs) {
         } catch (err) {
             reject(err);
         }
-    });
-}
-
-function tranLogTime(link) {
-    let result = {};
-
-    if (!link) {
-        debug('cLogs Error: Get jira work time error, link is undefined.');
-        return result;
-    }
-
-    return new Promise((resolve, reject) => {
-        request(link + workLogArgs, requestAuth, (err, response, body)=> {
-            if (!err && response.statusCode === 200) {
-                try {
-                    resolve(parsePage(body));
-                } catch(err) {
-                    debug('parsePage Error:'+ link + '=>' + err);
-                    reject(err);
-                }
-
-            } else {
-                reject(err, body);
-            }
-        });
     });
 }
 

@@ -10,6 +10,9 @@
     "data": "set debug=*:* && node modules/jiraFilter/run.js --load MICEN2_VOC_2017.12",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "bin": {
+    "bugs": "./bin/index.js"
+  },
   "browserslist": [
     "defaults",
     "not ie < 11",
@@ -32,13 +35,16 @@
     "koa-router": "^7.1.1",
     "koa-static": "^3.0.0",
     "koa-views": "^5.2.1",
+    "moment": "^2.22.2",
+    "mongodb": "^3.1.4",
+    "node-schedule": "^1.3.0",
     "redis": "^2.8.0",
-    "request": "^2.83.0",
+    "request": "^2.88.0",
     "xml2js": "^0.4.19"
   },
   "devDependencies": {
     "autoprefixer": "^7.2.4",
-    "babel-core": "^6.26.0",
+    "babel-core": "^6.26.3",
     "babel-loader": "^7.1.2",
     "babel-preset-es2015": "^6.24.1",
     "babel-preset-stage-0": "^6.24.1",
@@ -48,8 +54,8 @@
     "gulp-concat": "^2.6.1",
     "gulp-uglify": "^3.0.0",
     "gulp-util": "^3.0.8",
-    "node-sass": "^4.7.2",
-    "nodemon": "^1.8.1",
+    "node-sass": "^4.9.3",
+    "nodemon": "^1.18.4",
     "postcss-loader": "^2.0.10",
     "sass-loader": "^6.0.6",
     "style-loader": "^0.19.1",
