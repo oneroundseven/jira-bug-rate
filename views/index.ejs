@@ -26,7 +26,7 @@
 <% if (allTask && allTask.length > 0) { %>
 <% allTask.forEach(function(task, index) { %>
 <div class="content-wrap">
-    <h3 class="version-text"><%=task['fixVersion']%></h3>
+    <h3 class="version-text"><%=task['version']%></h3>
     <div class="version-timeline">
         <div class="m-step step-5">
             <div class="step-item step-ed">
@@ -87,7 +87,7 @@
                 <% var testBugs = 0; var pBugs = 0; var reqUpdate = 0; var workTime = 0; %>
                 <% task['users'].forEach(function(user, index) { %>
                 <tr>
-                    <td><%=user['assignee']%><br>
+                    <td><%=user['name']%><br>
                         <% if (user['testBugsRate'] > 0) { %>
                             <%
                                 var starCount = 0;
