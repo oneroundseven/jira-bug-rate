@@ -16,14 +16,46 @@ const DB_NAME = 'ued-fe-bugs';
 
 
 module.exports = function(action) {
-    if (!action) return;
+    return new Promise((resolve, reject) => {
+        if (!action) {
+            reject('Action must not be null!');
+            return;
+        }
 
-    // Use connect method to connect to the server
-    MongoClient.connect(DB_LINK, {useNewUrlParser:true}, function(err, client) {
-        assert.equal(null, err);
+        let result = null;
 
-        const db = client.db(DB_NAME);
-        action && action(db);
-        client.close();
+        // Use connect method to connect to the server
+        MongoClient.connect(DB_LINK,
+            {
+                useNewUrlParser:true,
+                authSource:'admin',
+                auto_reconnect: true,
+                poolSize: 10
+            },
+            async function(err, client) {
+                assert.equal(null, err);
+                try {
+                    const session = client.startSession();
+                    const db = client.db(DB_NAME);
+                    //db.executeDbAdminCommand({ getParameter: 1, featureCompatibilityVersion: 1 });
+                    /*session.startTransaction({
+                        readConcern: {level: 'snapshot'},
+                        writeConcern: {w: 'majority'},
+                    });*/
+
+                    if (action) {
+                        result = await action(db, session);
+                    }
+                    //session.commitTransaction();
+                    resolve(result);
+                } catch (err) {
+                    //await session.abortTransaction();
+                    reject(err);
+                    console.log(err);
+                }
+                client.close();
+            }
+        );
     });
+
 };

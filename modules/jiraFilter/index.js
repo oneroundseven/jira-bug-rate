@@ -2,32 +2,55 @@
 
 /**
  * @fileOverview UED-FE-Task
- * @desc  每隔五分钟重新获取下版本缓存数据
  * @author oneroundseven@gmail.com
  */
 
-const debug = require('debug')('jira:jiraFilter');
+const mongoDB = require('../mongodb');
 
-
-const timerGap = 10 * 60 * 1000;
-
-let localCacheData = null;
-
-function reFreshData() {
-    return new Promise(async (resolve, reject) => {
+function getLocalData() {
+    return mongoDB(async db=> {
         try {
-            //localCacheData = await cache.get();
-            resolve();
-        } catch (e) {
-            reject(e);
+            let localData = [];
+            let temp;
+
+            let s = new Date().getTime();
+            let versionsList = await db.collection('versions').find().sort({ addTime: -1 }).toArray();
+            let usersList = await db.collection('users').find().toArray();
+            let bugRateList = await db.collection('bugrate').find().toArray();
+            let tasksList = await db.collection('tasks').find().toArray();
+            let usersMapping = {};
+
+            usersList.forEach(user=> {
+                usersMapping[user.account] = user.name;
+            });
+
+            let version, userInfo;
+            versionsList.forEach(versionInfo=> {
+                version = versionInfo.version;
+                temp = Object.assign({}, versionInfo);
+                temp.users = [];
+                bugRateList.forEach(bugInfo=> {
+                    if (bugInfo.version === version) {
+                        userInfo = Object.assign({}, bugInfo);
+                        userInfo.name = usersMapping[userInfo.assignee] || 'unknow';
+                        userInfo.tasks = [];
+                        tasksList.forEach(taskInfo=> {
+                            if (userInfo.version === version && userInfo.assignee === taskInfo.assignee) {
+                                userInfo.tasks.push(taskInfo)
+                            }
+                        });
+                        temp.users.push(userInfo);
+                    }
+                });
+                localData.push(temp);
+            });
+
+            return localData;
+        } catch (err) {
+            console.log(err);
         }
     });
 }
-
-setInterval(()=> {
-    reFreshData();
-}, timerGap);
-reFreshData();
 
 /**
  * koa-middle wave
@@ -35,7 +58,7 @@ reFreshData();
  */
 function jiraTimer() {
     return async (ctx, next)=> {
-        ctx._jiraTask = localCacheData;
+        ctx._jiraTask = await getLocalData();
         await next();
     }
 }
