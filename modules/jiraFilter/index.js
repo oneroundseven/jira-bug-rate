@@ -13,7 +13,6 @@ function getLocalData() {
             let localData = [];
             let temp;
 
-            let s = new Date().getTime();
             let versionsList = await db.collection('versions').find().sort({ addTime: -1 }).toArray();
             let usersList = await db.collection('users').find().toArray();
             let bugRateList = await db.collection('bugrate').find().toArray();
@@ -27,6 +26,7 @@ function getLocalData() {
             let version, userInfo;
             versionsList.forEach(versionInfo=> {
                 version = versionInfo.version;
+                console.log(versionInfo)
                 temp = Object.assign({}, versionInfo);
                 temp.users = [];
                 bugRateList.forEach(bugInfo=> {
@@ -35,7 +35,7 @@ function getLocalData() {
                         userInfo.name = usersMapping[userInfo.assignee] || 'unknow';
                         userInfo.tasks = [];
                         tasksList.forEach(taskInfo=> {
-                            if (userInfo.version === version && userInfo.assignee === taskInfo.assignee) {
+                            if (taskInfo.version === version && userInfo.assignee === taskInfo.assignee) {
                                 userInfo.tasks.push(taskInfo)
                             }
                         });

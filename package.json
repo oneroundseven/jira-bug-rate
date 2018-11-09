@@ -3,12 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "start": "set port=80 && node bin/www",
+    "start": "set port=3000 && node bin/www",
     "dev": "./node_modules/.bin/nodemon bin/www",
     "prd": "pm2 start bin/www",
-    "watch": "webpack -w",
-    "data": "set debug=*:* && node modules/jiraFilter/run.js --load MICEN2_VOC_2017.12",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "watch": "webpack -w"
   },
   "bin": {
     "bugs": "./bin/index.js"

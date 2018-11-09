@@ -99,7 +99,6 @@ function statisticsBugs(bugs, versionItem, userName) {
     let bugCreateTime;
 
     let releasePTime = versionItem.releasePTime;
-    let releaseTime = versionItem.releaseTime;
     let assignee;
 
     bugs.forEach((bug, index)=> {
@@ -114,15 +113,16 @@ function statisticsBugs(bugs, versionItem, userName) {
         } else if (isNotFormalBug(bugType) && (RESOLUTION_STATUS[resolution] === 'Fixed' || RESOLUTION_STATUS[resolution] === 'Unresolved')) {
             result.bugs++;
 
-            if (util.date1MoreThanDate2(releasePTime, bugCreateTime)){
-                result.tbugs++;
-            } else if (util.date1MoreThanDate2(releaseTime, bugCreateTime)) {
+            // bug创建时间大于P版设定时间则为P版bug 未设定或者小于则全部为测试版bug
+            if (util.date1MoreThanDate2(bugCreateTime, releasePTime)) {
                 result.pbugs++;
             }
         } else if (!isNotFormalBug(bugType)) {
             result.formalBug++;
         }
     });
+
+    result.tbugs = result.bugs - result.pbugs;
 
     let user = util.arrayObjectSearch(versionItem.users, 'userName', userName);
 

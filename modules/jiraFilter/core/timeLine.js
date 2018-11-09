@@ -16,27 +16,21 @@ let defaultTimeLine = {
     overTime: 0
 };
 
-
-
 function timeLine(logs, versionItem) {
-    //let result = Object.assign({}, versionItem);
     let result = versionItem;
-    let now = new Date();
-    now = util.transTimeTo24(now.toString());
 
     if (!result.releaseTestTime) {
-        debug('timeLine Warn: releaseTestTime is not specified.'+ versionItem.fixVersion);
-        result.releaseTestTime = now;
+        debug('timeLine Error: releaseTestTime is not specified.'+ versionItem.fixVersion);
+        debug('doJob Fail.');
+        process.exit(1);
     }
 
     if (!result.releasePTime) {
         debug('timeLine Warn: releasePtime is not specified.'+ versionItem.fixVersion);
-        result.releasePTime = now;
     }
 
     if (!result.releaseTime) {
         debug('timeLine Warn: releaseTime is not specified.'+ versionItem.fixVersion);
-        result.releaseTime = now;
     }
 
     try {
@@ -102,8 +96,7 @@ function statisticsTimeLine(userLogs, result, userName) {
 
     for (let i = 0; i < userLogs.length; i++) {
         userLog = userLogs[i];
-
-        if (util.date1MoreThanDate2(releaseTestTime, userLog.logTime)) {
+        /*if (util.date1MoreThanDate2(releaseTestTime, userLog.logTime)) {
             timeLine.devTime += util.transTimeToHourFloat(userLog.spendTime) + util.transTimeToHourFloat(userLog.overTime);
         } else if (releasePTime - releaseTestTime > 0 && util.date1MoreThanDate2(releasePTime, userLog.logTime)) {
             timeLine.fixBugsTime += util.transTimeToHourFloat(userLog.spendTime) + util.transTimeToHourFloat(userLog.overTime);
@@ -111,6 +104,30 @@ function statisticsTimeLine(userLogs, result, userName) {
             timeLine.fixPBugsTime += util.transTimeToHourFloat(userLog.spendTime) + util.transTimeToHourFloat(userLog.overTime);
         } else if (util.date1MoreThanDate2(userLog.logTime, releaseTime)) { // overtime
             timeLine.overTime += util.transTimeToHourFloat(userLog.spendTime) + util.transTimeToHourFloat(userLog.overTime);
+        }*/
+
+        // 转测时间之前为开发时间
+        if (releaseTestTime && util.date1MoreThanDate2(releaseTestTime, userLog.logTime)) {
+            timeLine.devTime += util.transTimeToHourFloat(userLog.spendTime) + util.transTimeToHourFloat(userLog.overTime);
+            continue;
+        }
+
+        // 发布之后超出时间
+        if (releaseTime && util.date1MoreThanDate2(userLog.logTime, releaseTime)) {
+            timeLine.overTime += util.transTimeToHourFloat(userLog.spendTime) + util.transTimeToHourFloat(userLog.overTime);
+            continue;
+        }
+
+        // P版发布之后花费时间
+        if (releasePTime && util.date1MoreThanDate2(userLog.logTime, releasePTime)) {
+            timeLine.fixPBugsTime += util.transTimeToHourFloat(userLog.spendTime) + util.transTimeToHourFloat(userLog.overTime);
+            continue;
+        }
+
+        // 转测之后为修复bug时间
+        if (releaseTestTime && util.date1MoreThanDate2(userLog.logTime, releaseTestTime)) {
+            timeLine.fixBugsTime += util.transTimeToHourFloat(userLog.spendTime) + util.transTimeToHourFloat(userLog.overTime);
+            continue;
         }
     }
 

@@ -33,7 +33,7 @@
                 <span class="dot"></span>
                 <i class="line"></i>
                 <div class="txt-box">
-                    <div class="time-start"><% if (task['devStartTime']) { %><%=task['devStartTime']%><% } else { %>-<% } %></div>
+                    <div class="time-start"><% if (task['devTime']) { %><%=task['devTime']%><% } else { %>-<% } %></div>
                     <div class="time-desc">Start Dev</div>
                 </div>
             </div>
@@ -41,7 +41,7 @@
                 <span class="dot"></span>
                 <i class="line"></i>
                 <div class="txt-box">
-                    <div class="time-start"><% if (task['releaseTestTime']) { %><%=task['releaseTestTime']%><% } else { %>-<% } %></div>
+                    <div class="time-start"><% if (task['testTime']) { %><%=task['testTime']%><% } else { %>-<% } %></div>
                     <div class="time-desc">Start Testing</div>
                 </div>
             </div>
@@ -88,22 +88,22 @@
                 <% task['users'].forEach(function(user, index) { %>
                 <tr>
                     <td><%=user['name']%><br>
-                        <% if (user['testBugsRate'] > 0) { %>
+                        <% if (user['tBugsRate'] > 0) { %>
                             <%
                                 var starCount = 0;
-                                if (user['testBugsRate'] < 2.6) {
+                                if (user['tBugsRate'] < 2.6) {
                                     starCount = 1;
                                 }
 
-                                if (user['testBugsRate'] < 1.8) {
+                                if (user['tBugsRate'] < 1.8) {
                                     starCount = 2;
                                 }
 
-                                if (user['testBugsRate'] < 1.2) {
+                                if (user['tBugsRate'] < 1.2) {
                                     starCount = 4;
                                 }
 
-                                if (user['testBugsRate'] < 0.5) {
+                                if (user['tBugsRate'] < 0.5) {
                                     starCount = 7;
                                 }
                             %>
@@ -132,21 +132,21 @@
                         <% } else { %>-<% } %>
                     </td>
                     <td>
-                        <% if (user['tbugs']) { %>
-                            <span class="bugs"><%=user['tbugs']%></span>
-                            <% if (user['testBugsRate']) { %>
-                                <span class="label <% if (user['testBugsRate'] < 1.5) { %>success<% } %>
-                                    <% if (user['testBugsRate'] >= 1.5 && user['testBugsRate'] < 2.46) { %>warning<% } %>
-                                    <% if (user['testBugsRate'] >= 2.46) { %>alert<% } %>
+                        <% if (user['tBugs']) { %>
+                            <span class="bugs"><%=user['tBugs']%></span>
+                            <% if (user['tBugsRate']) { %>
+                                <span class="label <% if (user['tBugsRate'] < 1.5) { %>success<% } %>
+                                    <% if (user['tBugsRate'] >= 1.5 && user['tBugsRate'] < 2.46) { %>warning<% } %>
+                                    <% if (user['tBugsRate'] >= 2.46) { %>alert<% } %>
                                     ">
-                                <%=user['testBugsRate']%>/day</span>
+                                <%=user['tBugsRate']%>/day</span>
                             <% } %>
-                            <% testBugs += user['tbugs'] %>
+                            <% testBugs += user['tBugs'] %>
                         <% } else { %>-<% } %>
                     </td>
                     <td>
-                        <% if (user['pbugs']) { %>
-                            <span class="bugs"><%=user['pbugs']%></span>
+                        <% if (user['pBugs']) { %>
+                            <span class="bugs"><%=user['pBugs']%></span>
                             <% if (user['PBugsRate']) { %>
                                 <span class="label <% if (user['PBugsRate'] < 1) { %>success<% } %>
                                     <% if (user['PBugsRate'] >= 1) { %>alert<% } %>
@@ -154,7 +154,7 @@
                                 <%=user['PBugsRate']%>/day
                                 </span>
                             <% } %>
-                            <% pBugs += user['pbugs'] %>
+                            <% pBugs += user['pBugs'] %>
                         <% } else { %>-<% } %>
                     </td>
                     <td>
@@ -166,7 +166,7 @@
                     <td>
                         <ul>
                         <% user['tasks'].forEach(function(subTask, index) { %>
-                            <li><a href="<%=subTask['link']%>" target="_blank"><%=subTask['taskName']%></a></li>
+                            <li><a href="<%=subTask['link']%>" target="_blank"><%=subTask['name']%></a></li>
                         <% }) %>
                         </ul>
                     </td>

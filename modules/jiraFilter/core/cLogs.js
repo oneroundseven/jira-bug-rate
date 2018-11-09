@@ -7,11 +7,8 @@
 
 const request = require('../request');
 const cheerio = require('cheerio');
-const path = require('path');
 const debug = require('debug')('jira:cLogs');
-
-let cwd = process.cwd();
-const sqlJira = require(path.resolve(cwd, 'config/sql-jira'));
+const sql = require('../../../config/sql-jira');
 const workLogArgs = '?page=com.focustech.jira.focusjiraimprovement:worklog-tabpanel';
 
 
@@ -22,7 +19,7 @@ function cLogs (versionItem) {
             resolve(result);
         }
         try {
-            let allTaskAndBugs = await request.xmlRequest(sqlJira.versionData.replace('{{fixVersion}}', versionItem.fixVersion));
+            let allTaskAndBugs = await request.xmlRequest(sql.versionData(versionItem.fixVersion));
             versionItem.allTaskAndBugs = allTaskAndBugs;
             result = await statisticsTime(allTaskAndBugs);
             resolve(result);
@@ -33,7 +30,7 @@ function cLogs (versionItem) {
 }
 
 function statisticsTime(allTaskAndBugs) {
-    let users = sqlJira.users;
+    let users = sql.users();
     let result = [];
     if (!users || users.length === 0) {
         return result;
@@ -50,7 +47,7 @@ function statisticsTime(allTaskAndBugs) {
                 ((item, index)=> {
                     setTimeout(async ()=> {
                         try {
-                            debug('cLogs Info: Start get work time, order:'+ index + ', link by:'+  item.link[0])
+                            debug('cLogs Info: Start get work time, order:'+ (index + 1) + ', link by:'+  item.link[0]);
                             tmp = await request.htmlRequest(item.link[0]+ workLogArgs);
                             result = result.concat(parsePage(tmp));
                         } catch(err) {
@@ -72,7 +69,7 @@ function statisticsTime(allTaskAndBugs) {
 }
 
 function parsePage(body) {
-    let users = sqlJira.users;
+    let users = sql.users();
     let result = [];
 
     if (!body) return result;

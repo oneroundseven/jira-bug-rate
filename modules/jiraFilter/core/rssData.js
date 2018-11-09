@@ -6,12 +6,10 @@
  */
 
 const request = require('../request');
-const path = require('path');
 const debug = require('debug')('jira:rssData');
 const util = require('./util');
-
-let cwd = process.cwd();
-const sqlJira = require(path.resolve(cwd, 'config/sql-jira'));
+const mongoDB = require('../../mongodb');
+const sql = require('../../../config/sql-jira');
 
 
 /**
@@ -23,10 +21,22 @@ function rssData(fixVersion) {
         debug('config get Error: fixVersion is not config plane time.');
     }
 
-    return new Promise((resolve, reject) => {
+    let versionsInfo;
+
+    return new Promise(async (resolve, reject) => {
         try {
-            request.xmlRequest(sqlJira.taskData.replace('{{fixVersion}}', fixVersion)).then(result=> {
-                resolve(formatRssData(result));
+            versionsInfo = await mongoDB(async db=> {
+                return await db.collection('versions').find({ version: fixVersion }).toArray();
+            });
+
+            if (versionsInfo.length === 0) {
+                debug('Get version info error: not complete info in db. =>'+ fixVersion);
+                debug('doJob Fail.');
+                process.exit(1);
+            }
+
+            request.xmlRequest(sql.taskData(fixVersion)).then(result=> {
+                resolve(formatRssData(result, versionsInfo[0]));
             }).catch(err=> {
                 reject([]);
                 debug('rssData Error:' + err);
@@ -42,9 +52,9 @@ function rssData(fixVersion) {
  *  [{
         fixVersion: '',
         devStartTime: '', 第一次填写日志时间
-        releasePTime: '', // config 文件导入
-        releaseTestTime: '', // config 文件导入
-        releaseTime: '', // config 文件导入
+        releasePTime: '', // mongodb 读取
+        releaseTestTime: '', // mongodb 读取
+        releaseTime: '', // mongodb 读取
         bugs: 0, // 当前版本所有bug总数
         users: [{
             assignee: '',
@@ -67,7 +77,7 @@ function rssData(fixVersion) {
         }]
     }]
  */
-function formatRssData(items) {
+function formatRssData(items, versionsInfo) {
     let result = [];
 
     if (!items || items.length === 0) {
@@ -75,7 +85,7 @@ function formatRssData(items) {
         return result;
     }
 
-    let tmp, userTmp, progressTmp, version;
+    let tmp, userTmp, version;
     let title,
         link,
         assignee,
@@ -117,9 +127,9 @@ function formatRssData(items) {
         } else {
             version = {
                 fixVersion: fixVersion,
-                releasePTime: null,
-                releaseTestTime: null,
-                releaseTime: null,
+                releasePTime: versionsInfo.releasePTime,
+                releaseTestTime: versionsInfo.testTime,
+                releaseTime: versionsInfo.releaseTime,
                 users: [{
                     assignee: assignee,
                     userName: userName,

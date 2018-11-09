@@ -108,7 +108,7 @@ module.exports = {
     transTimeTo24: function(dateStr) {
         let result = new Date(dateStr);
 
-        if (!util.isDate(result)) {
+        if (!dateStr || !util.isDate(result)) {
             return null;
         }
 
