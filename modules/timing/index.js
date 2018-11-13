@@ -10,6 +10,21 @@
 const schedule = require('node-schedule');
 const Job = require('./job');
 
+// day run
+schedule.scheduleJob({ second: 10, minute: 0, hour: 23 }, Job);
+//Job();
+
+/*
+example
+Job('MICEN2_LV_2017.179', {
+    testTime: '2018-02-04',
+    releasePTime: '2018-02-13',
+    releaseTime: '2018-02-28'
+});
+*/
+
+/*
+default data
 let versions = [
     {
         fixVersion: 'SILK_LV_2018.08',
@@ -115,19 +130,6 @@ let versions = [
     }
 ]
 
-
-// day run
-//schedule.scheduleJob({ second: 10, minute: 0, hour: 23 }, Job);
-
-/*
-example
-Job('MICEN2_LV_2017.179', {
-    testTime: '2018-02-04',
-    releasePTime: '2018-02-13',
-    releaseTime: '2018-02-28'
-});
-*/
-
 versions.forEach(async versionInfo=> {
     await Job(versionInfo.fixVersion, {
         testTime: versionInfo.releaseTestTime,
@@ -135,3 +137,4 @@ versions.forEach(async versionInfo=> {
         releaseTime: versionInfo.releaseTime
     })
 })
+*/

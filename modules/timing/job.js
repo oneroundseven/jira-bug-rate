@@ -53,7 +53,7 @@ async function doJob(targetVersion, option) {
         let list = await request.xmlRequest(taskSql);
 
         list.forEach(item=> {
-            if (newVersionList.indexOf(item.fixVersion[0]) === -1) {
+            if (item.fixVersion && newVersionList.indexOf(item.fixVersion[0]) === -1) {
                 newVersionList.push(item.fixVersion[0]);
             }
         });

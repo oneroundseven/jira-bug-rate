@@ -7,13 +7,18 @@
 
 const mongoDB = require('../mongodb');
 
-function getLocalData() {
+function getLocalData(likeVersion) {
     return mongoDB(async db=> {
         try {
             let localData = [];
             let temp;
 
-            let versionsList = await db.collection('versions').find().sort({ addTime: -1 }).toArray();
+            let versionListCondition = {};
+            if (likeVersion) {
+                versionListCondition.version = new RegExp('.*'+ likeVersion, 'gi');
+            }
+
+            let versionsList = await db.collection('versions').find(versionListCondition).sort({ devStartTime: -1 }).toArray();
             let usersList = await db.collection('users').find().toArray();
             let bugRateList = await db.collection('bugrate').find().toArray();
             let tasksList = await db.collection('tasks').find().toArray();
@@ -26,7 +31,6 @@ function getLocalData() {
             let version, userInfo;
             versionsList.forEach(versionInfo=> {
                 version = versionInfo.version;
-                console.log(versionInfo)
                 temp = Object.assign({}, versionInfo);
                 temp.users = [];
                 bugRateList.forEach(bugInfo=> {
@@ -52,15 +56,4 @@ function getLocalData() {
     });
 }
 
-/**
- * koa-middle wave
- * @returns {function(*, *)}
- */
-function jiraTimer() {
-    return async (ctx, next)=> {
-        ctx._jiraTask = await getLocalData();
-        await next();
-    }
-}
-
-module.exports = jiraTimer;
+module.exports = getLocalData;
