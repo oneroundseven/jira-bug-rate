@@ -9,7 +9,7 @@
 - 新增日终跑数据功能, 会重新跑昨天一天新建的新的版本号，并且已经设定过转测时间的版本 (每天晚上23点)
 - 新增命令行跑数据方式
 ````aidl
-npm linking
+npm link
 bugs run command
 bugs run -h
 bugs run MICEN2_LV_2017.179 -t 2018-02-04 -p 2018-02-13 -r 2018-02-28
