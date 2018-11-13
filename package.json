@@ -1,6 +1,6 @@
 {
   "name": "UED-FE-Task",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
   "scripts": {
     "start": "set port=3000 && node bin/www",

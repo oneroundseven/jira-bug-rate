@@ -44,11 +44,21 @@ module.exports = {
         ISSUEDTYPE.task.join(COMMA) +')%20AND%20status%20not%20in%20(Aborted)%20AND%20assignee%20in%20('+
         global.uedFEUsers +')%20AND%20createdDate%20%3E%20'+ overTime +'%20ORDER%20BY%20updatedDate';
     },
-    taskData: (fixVersion)=> {
+    taskData: (fixVersions)=> {
+        let versions = '';
+        if (fixVersions instanceof Array) {
+            let temp = [];
+            fixVersions.forEach(version=> {
+                temp.push('"'+ version + '"');
+            });
+            versions = temp.join(COMMA);
+        } else {
+            versions = '"'+ fixVersions + '"';
+        }
         return 'http://jira.vemic.com/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?jqlQuery=project%20in%20('+
         PROJECTS.join(COMMA) +')%20AND%20issuetype%20in%20('+
         ISSUEDTYPE.task.join(COMMA) +')%20AND%20status%20not%20in%20(Aborted)%20AND%20assignee%20in%20('+
-        global.uedFEUsers +')%20AND%20fixVersion%3D"'+ fixVersion +'"%20ORDER%20BY%20updatedDate';
+        global.uedFEUsers +')%20AND%20fixVersion%20in%20('+ versions +')%20ORDER%20BY%20updatedDate';
     },
     versionData: (fixVersion)=> {
         return 'http://jira.vemic.com/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?jqlQuery=project%20in%20('+

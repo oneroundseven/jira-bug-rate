@@ -16,6 +16,7 @@ program
     .option('-p --pre <Date>', 'P版时间')
     .option('-r --release <Date>', '正式版发布时间')
     .option('-d --debug', '是否开启debug模式')
+    .option('-e --example', 'bugs run MICEN2_LV_2017.179 -t 2018-02-04 -p 2018-02-13 -r 2018-02-28')
     .description('bug率平台跑数据')
     .action((jiraVersion, cmd)=> {
         if (!jiraVersion) {

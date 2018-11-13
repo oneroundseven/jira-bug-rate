@@ -16,27 +16,15 @@ const sql = require('../../../config/sql-jira');
  * @param {String} [fixVersion]
  * @returns {Promise<any>}
  */
-function rssData(fixVersion) {
-    if (!fixVersion) {
-        debug('config get Error: fixVersion is not config plane time.');
+function rssData(versionInfo) {
+    if (!versionInfo) {
+        debug('config get Error: versionInfo is not complete.');
     }
-
-    let versionsInfo;
 
     return new Promise(async (resolve, reject) => {
         try {
-            versionsInfo = await mongoDB(async db=> {
-                return await db.collection('versions').find({ version: fixVersion }).toArray();
-            });
-
-            if (versionsInfo.length === 0) {
-                debug('Get version info error: not complete info in db. =>'+ fixVersion);
-                debug('doJob Fail.');
-                process.exit(1);
-            }
-
-            request.xmlRequest(sql.taskData(fixVersion)).then(result=> {
-                resolve(formatRssData(result, versionsInfo[0]));
+            request.xmlRequest(sql.taskData(versionInfo.version)).then(result=> {
+                resolve(formatRssData(result, versionInfo));
             }).catch(err=> {
                 reject([]);
                 debug('rssData Error:' + err);
@@ -90,20 +78,13 @@ function formatRssData(items, versionsInfo) {
         link,
         assignee,
         userName,
-        fixVersion;
+        fixVersion = versionsInfo.version;
 
     items.forEach((item, index)=> {
         title = item['title'][0];
         link = item['link'][0];
         assignee = item['assignee'][0]['_'];
         userName = item['assignee'][0]['$']['username'];
-        fixVersion = item['fixVersion'];
-
-        if (!fixVersion || fixVersion.length === 0) {
-            fixVersion = 'Other';
-        } else {
-            fixVersion = fixVersion[0];
-        }
 
         tmp = util.arrayObjectSearch(result, 'fixVersion', fixVersion);
 

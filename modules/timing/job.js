@@ -26,7 +26,7 @@ let taskVersionInfo = {
 };
 
 // jobs
-async function doJob(targetVersion, options) {
+async function doJob(targetVersion, option) {
     if (run_lock === true) {
         debug('Job running: try again later.');
         return;
@@ -44,70 +44,29 @@ async function doJob(targetVersion, options) {
     });
 
     let sources = [];
-    let newVersionList;
+    let newVersionList = [];
 
     if (!targetVersion) {
         //1. 查找出昨天0点开始到现在的所有任务版本号
         let startTime = moment(new Date()).add(-2, 'd').format('YYYY-MM-DD');
         let taskSql = sql.taskVersion(startTime);
         let list = await request.xmlRequest(taskSql);
+
         list.forEach(item=> {
-            newVersionList.push(item.fixVersion[0]);
+            if (newVersionList.indexOf(item.fixVersion[0]) === -1) {
+                newVersionList.push(item.fixVersion[0]);
+            }
         });
     } else {
         if (typeof targetVersion === 'string') {
             newVersionList = [targetVersion];
-        }else if (targetVersion instanceof Array) {
-            newVersionList = targetVersion;
         } else {
             debug('targetVersion args error, please checked first.');
             return;
         }
-
-        newVersionList = await validVersions(newVersionList);
     }
 
-    //2. 拉取库中所有现有版本号(没有发布时间，没有bug率报表)
-    let versionList = await mongoDB(async db=> {
-        return await db.collection('versions').find({ $or: [{ releaseTime: '' }, { isCreate : 0 }] }).toArray();
-    });
-
-    //3. 对比筛选出未统计bug率，时间节点不全的版本号
-    let isAdd, insertRows = [];
-    newVersionList.forEach(newVersion=> {
-        isAdd = false;
-        versionList.forEach(dbVersion=> {
-            if (newVersion === dbVersion.version) {
-                isAdd = true;
-            }
-        });
-
-        if (!isAdd && !arrayExist(insertRows, 'version', newVersion)) {
-            insertRows.push(Object.assign({}, taskVersionInfo, {
-                version: newVersion,
-                addTime: new Date()
-            }, (options || {})));
-        }
-    });
-
-    // 数据库内插入新加入的版本数据
-    if (insertRows.length > 0) {
-        await mongoDB(async (db, session)=> {
-            await db.collection('versions').insertMany(insertRows, { session });
-        });
-    }
-
-    if (!targetVersion) {
-        versionList.forEach(dbVersion=> {
-            if (dbVersion.testTime) {
-                sources.push(dbVersion.version);
-            } else {
-                debug('Not converted version: '+ dbVersion.version);
-            }
-        });
-    } else {
-        sources = newVersionList;
-    }
+    sources = await versionFilter(newVersionList, option);
 
     if (sources.length === 0) {
         debug('Run Fail: bugs rate need config test time. =>'+ targetVersion);
@@ -117,17 +76,13 @@ async function doJob(targetVersion, options) {
 
     //4. 重新跑数据
     let actions = [];
-    sources.forEach(version=> {
-        actions.push(jiraData(version))
+    sources.forEach(versionInfo=> {
+        actions.push(jiraData(versionInfo))
     });
 
     Promise.all(actions).then(results=> {
         //5. 根据重新跑的数据进行重新入库
         reset(sources, results);
-        //6. 重置数据库中create状态
-        mongoDB(async (db, session)=> {
-            db.collection('versions').updateMany({ version: { $in: sources } }, { $set: { isCreate: 1 }}, { session });
-        });
         run_lock = false;
         debug('Dojob successful.');
     }).catch(err=> {
@@ -135,6 +90,101 @@ async function doJob(targetVersion, options) {
         run_lock = false;
         debug('Dojob Fail.');
     });
+}
+
+/**
+ * 版本过滤
+ * @param newVersionList
+ * @param option 给命令行工具 单版本执行使用 传入 转测时间 P版时间 正式版时间等参数
+ * 如果版本没有配置转测时间，则尝试从 task 备注中查找是否配置了版本发布转测信息
+ * #test:2018-02-03#
+ * #prelease:2018-03-12#
+ * #release:2018-04-12#
+ * @returns {Promise<void>}
+ */
+function versionFilter(newVersionList, option) {
+    let insertRows = [];
+    let row = Object.assign({}, taskVersionInfo);
+
+    return new Promise(async (resolve, reject) => {
+        try {
+            let versionList = await validVersions(newVersionList);
+            let config = {};
+
+            if (versionList.length === 0) {
+                resolve(insertRows);
+                return;
+            }
+
+            config[newVersionList] = option || {};
+            extend(config, await searchJiraConfigInfo(versionList));
+
+            versionList.forEach(version=> {
+                insertRows.push(Object.assign(row, (config[version] || {})));
+            });
+
+            resolve(insertRows);
+        } catch(err) {
+            reject(err);
+        }
+    });
+}
+
+function searchJiraConfigInfo(fixVersions) {
+    return new Promise((resolve, reject) => {
+        let config = {};
+        let version;
+
+        request.xmlRequest(sql.taskData(fixVersions)).then(result=> {
+            if (result.length > 0) {
+                result.forEach(versionInfo=> {
+                    version = versionInfo.fixVersion[0];
+                    if (!config[version]) {
+                        config[version] = { version };
+                    }
+                    if (versionInfo.comments && versionInfo.comments.length > 0) {
+                        versionInfo.comments.forEach(comment=> {
+                            if (comment) {
+                                comment.comment.forEach(content=> {
+                                    Object.assign(config[version], matchConfig(content._));
+                                })
+                            }
+                        })
+                    }
+                })
+            }
+            resolve(config);
+        }).catch(err=> {
+            reject(err);
+            debug('rssData Error:' + err);
+        });
+    });
+}
+
+const TEST_KEY = /#test:(.*?)#/;
+const PRELEASE_KEY = /#prelease:(.*?)#/;
+const RELEASE_KEY = /#release:(.*?)#/;
+
+function matchConfig(comment) {
+    let result = { };
+    if (!comment) return result;
+
+    let test = comment.match(TEST_KEY);
+    if (test && test.length === 2) {
+        result['testTime'] = test[1];
+    }
+
+    test = comment.match(PRELEASE_KEY);
+    if (test && test.length === 2) {
+        result['releasePTime'] = test[1];
+    }
+
+    test = comment.match(RELEASE_KEY);
+    if (test && test.length === 2) {
+        result['releaseTime'] = test[1];
+    }
+
+    return result;
 }
 
 function validVersions(versions) {
@@ -154,6 +204,7 @@ function validVersions(versions) {
             }
         });
 
+        // 检查jira中是否真实存在该版本
         if (daos.length > 0) {
             Promise.all(daos).then(results=> {
                 results.forEach((versionInfo, index)=> {
@@ -174,22 +225,24 @@ function validVersions(versions) {
     });
 }
 
-function reset(versions, newVersions) {
-    if (!versions) return;
+function reset(sources, newVersions) {
+    if (!sources) return;
+
+    let hadVersionList = [];
+    sources.forEach(item=> {
+        hadVersionList.push(item.version);
+    });
 
     mongoDB(async (db, session)=> {
         try {
-            //清理所有当前版本数据
-            await db.collection('bugrate').deleteMany({ version: { $in: versions } }, { session });
-            await db.collection('tasks').deleteMany({ version: { $in: versions } }, { session });
-
-            //重新塞入新数据
             if (newVersions) {
                 let listRows = [];
                 let taskRows = [];
-                let updateDaos = [];
+                let versionRows = [];
+                let versionConfig;
 
                 newVersions.forEach(versionInfo=> {
+                    versionConfig = getJiraCommitConfig(sources, versionInfo[0].fixVersion);
                     versionInfo[0].users.forEach(user=> {
                         user.tasks.forEach(task=> {
                             taskRows.push({
@@ -218,12 +271,24 @@ function reset(versions, newVersions) {
                         });
                     });
 
-                    updateDaos.push(db.collection('versions').updateOne({version: versionInfo[0].fixVersion}, { $set: { devTime: versionInfo[0].devStartTime }}))
+                    if (versionConfig.version) {
+                        versionRows.push(Object.assign({}, taskVersionInfo, versionConfig, {
+                            devTime: versionInfo[0].devStartTime,
+                            isCreate: versionConfig.releaseTime ? 0 : 1,
+                            addTime: new Date()
+                        }));
+                    }
                 });
 
-                await Promise.all(updateDaos);
+                // 清理所有当前版本数据
+                await db.collection('bugrate').deleteMany({ version: { $in: hadVersionList } }, { session });
+                await db.collection('tasks').deleteMany({ version: { $in: hadVersionList } }, { session });
+                await db.collection('versions').deleteMany({ version: { $in: hadVersionList } }, { session });
+
+                // 重新插入新数据
                 await db.collection('bugrate').insertMany(listRows);
                 await db.collection('tasks').insertMany(taskRows);
+                await db.collection('versions').insertMany(versionRows);
             }
         } catch(err) {
             debug(err);
@@ -231,18 +296,29 @@ function reset(versions, newVersions) {
     })
 }
 
-function arrayExist(arr, attrName, attrValue) {
-    let result = false;
-    if (!arr) return result;
+function getJiraCommitConfig(versionList, version) {
+    let result = {};
 
-    for (let i = 0; i < arr.length; i++) {
-        if (arr[i][attrName] === attrValue) {
-            result = true;
+    for (let i = 0; i < versionList.length; i++) {
+        if (versionList[i] && versionList[i].version === version) {
+            result = versionList[i];
             break;
         }
     }
 
     return result;
 }
+
+// deep clone
+function extend(source, target) {
+    for (let item in target) {
+        if (target[item] && source[item] && Object.prototype.toString.call(target[item]) === '[object Object]') {
+            extend(source[item], target[item]);
+        } else {
+            source[item] = target[item];
+        }
+    }
+}
+
 
 module.exports = doJob;

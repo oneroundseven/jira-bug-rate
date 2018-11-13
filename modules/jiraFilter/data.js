@@ -16,7 +16,13 @@ const bugFilter = require('./core/bugFilter');
  * 返回json数据
  * @param {String} [fixVersion]
  */
-function updateJiraTask(fixVersion) {
+function updateJiraTask(versionInfo) {
+    if (!versionInfo) {
+        debug('versionInfo not complete.');
+        return;
+    }
+
+    let fixVersion = versionInfo.version;
 
     if (!fixVersion) {
         debug('updateJiraTask Error: fixVersion must be exist.');
@@ -26,7 +32,7 @@ function updateJiraTask(fixVersion) {
     // 检测版本是否配置过task-jira
     return new Promise(async (resolve, reject) => {
         try {
-            let rss = await rssData(fixVersion);
+            let rss = await rssData(versionInfo);
             let tmpLogs;
             let len = new Array(rss.length);
             rss.forEach(async (versionItem, index)=> {
