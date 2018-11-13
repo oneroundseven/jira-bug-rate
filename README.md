@@ -14,11 +14,15 @@ bugs run command
 bugs run -h
 bugs run MICEN2_LV_2017.179 -t 2018-02-04 -p 2018-02-13 -r 2018-02-28
 ````
-- 新增jira备注配置转测时间点方式
+- 新增jira备注配置转测时间点方式(必须为前端组人员任务下)
 ````aidl
 #test:2018-02-03#
 #prelease:2018-03-12#
 #release:2018-04-13#
+````
+- 命令则可以省略参数
+````aidl
+bugs run MICEN2_LV_2017.179
 ````
 test:转测时间
 prelease:P版发布时间
