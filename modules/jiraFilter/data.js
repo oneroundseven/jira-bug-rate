@@ -5,11 +5,11 @@
  * @author oneroundseven@gmail.com
  */
 
-const debug = require('debug')('jira:jiraFilter');
 const cLogs = require('./core/cLogs');
 const rssData = require('./core/rssData');
 const timeLine = require('./core/timeLine');
 const bugFilter = require('./core/bugFilter');
+const logger = require('../logger');
 
 /**
  * 更新数据缓存，可以指定单个版本更新或者全部更新
@@ -18,14 +18,14 @@ const bugFilter = require('./core/bugFilter');
  */
 function updateJiraTask(versionInfo) {
     if (!versionInfo) {
-        debug('versionInfo not complete.');
+        logger.error('versionInfo not complete.');
         return;
     }
 
     let fixVersion = versionInfo.version;
 
     if (!fixVersion) {
-        debug('updateJiraTask Error: fixVersion must be exist.');
+        logger.error('updateJiraTask Error: fixVersion must be exist.');
         return;
     }
 
@@ -44,24 +44,24 @@ function updateJiraTask(versionInfo) {
                     bugFilter(versionItem);
                     len.splice(0,1);
                 } catch(err) {
-                    debug('trans time & bug error:'+ versionItem.fixVersion);
+                    logger.error('trans time & bug error:'+ versionItem.fixVersion);
                     len.splice(0,1);
                 }
 
                 if (len.length === 0) {
                     resolve(rss);
-                    debug('jiraFilter init data Success.');
+                    logger.compile('jiraFilter init data Success.');
                 }
             });
         } catch(err) {
-            debug('jiraFilter init Error:'+ err);
+            logger.error('jiraFilter init Error:'+ err);
             reject(err);
         }
     });
 }
 
 process.on('unhandledRejection', (reason, p) => {
-    debug('Unhandled Rejection:', p, 'reason: ', reason);
+    logger.error('Unhandled Rejection:', p, 'reason: ', reason);
 });
 
 module.exports = updateJiraTask;

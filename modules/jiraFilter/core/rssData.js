@@ -6,9 +6,8 @@
  */
 
 const request = require('../request');
-const debug = require('debug')('jira:rssData');
 const util = require('./util');
-const mongoDB = require('../../mongodb');
+const logger = require('../../logger');
 const sql = require('../../../config/sql-jira');
 
 
@@ -18,7 +17,7 @@ const sql = require('../../../config/sql-jira');
  */
 function rssData(versionInfo) {
     if (!versionInfo) {
-        debug('config get Error: versionInfo is not complete.');
+        logger.error('config get Error: versionInfo is not complete.');
     }
 
     return new Promise(async (resolve, reject) => {
@@ -27,7 +26,7 @@ function rssData(versionInfo) {
                 resolve(formatRssData(result, versionInfo));
             }).catch(err=> {
                 reject([]);
-                debug('rssData Error:' + err);
+                logger.error('rssData Error:' + err);
             });
         } catch (err) {
             reject([]);
@@ -69,7 +68,7 @@ function formatRssData(items, versionsInfo) {
     let result = [];
 
     if (!items || items.length === 0) {
-        debug('rssData items data not exist.');
+        logger.error('rssData items data not exist.');
         return result;
     }
 

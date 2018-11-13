@@ -7,6 +7,7 @@
 
 const MongoClient = require('mongodb').MongoClient;
 const assert = require('assert');
+const logger = require('../logger');
 
 // Connection Link
 const DB_LINK = 'mongodb://192.168.53.78:27017';
@@ -19,6 +20,7 @@ module.exports = function(action) {
     return new Promise((resolve, reject) => {
         if (!action) {
             reject('Action must not be null!');
+            logger.error('DBConnect Error: Action must not be null!');
             return;
         }
 
@@ -51,7 +53,7 @@ module.exports = function(action) {
                 } catch (err) {
                     //await session.abortTransaction();
                     reject(err);
-                    console.log(err);
+                    logger.error(err);
                 }
                 client.close();
             }

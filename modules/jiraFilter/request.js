@@ -6,9 +6,9 @@
  */
 
 const xml2js = require('xml2js');
-const debug = require('debug')('jira:request');
 const util = require('./core/util');
 const request = require('request');
+const logger = require('../logger');
 
 const requestAuth = {
     'auth': {
@@ -27,13 +27,13 @@ module.exports = {
             try {
                 request(jiraXmlUrl, requestAuth, (err, response, body)=> {
                     if (!err && response.statusCode === 200) {
-                        debug('Request success:'+ jiraXmlUrl);
+                        logger.compile('Request success:'+ jiraXmlUrl);
                         xml2js.parseString(body, (err, result)=> {
                             if (err) {
                                 reject(err);
                             } else {
                                 resolve(util.transJiraRssData(result));
-                                debug('cLogs: all task data xml trans to json & filter success!');
+                                logger.compile('cLogs: all task data xml trans to json & filter success!');
                             }
                         });
                     } else {
@@ -41,7 +41,7 @@ module.exports = {
                     }
                 });
             } catch (err) {
-                debug('cLogs: get all task and bugs error:'+ jiraXmlUrl + err);
+                logger.error('cLogs: get all task and bugs error:'+ jiraXmlUrl + err);
                 reject(err);
             }
 
@@ -51,7 +51,7 @@ module.exports = {
         let result = {};
 
         if (!link) {
-            debug('cLogs Error: Get jira work time error, link is undefined.');
+            logger.error('cLogs Error: Get jira work time error, link is undefined.');
             return result;
         }
 
@@ -61,7 +61,7 @@ module.exports = {
                     try {
                         resolve(body);
                     } catch(err) {
-                        debug('parsePage Error:'+ link + '=>' + err);
+                        logger.error('parsePage Error:'+ link + '=>' + err);
                         reject(err);
                     }
 

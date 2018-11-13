@@ -6,7 +6,7 @@
  */
 
 const util = require('util');
-const debug = require('debug')('jira:util');
+const logger = require('../../logger');
 
 const TIME_REG = {
     day: /(\d+)\s?day[s]?/,
@@ -19,7 +19,7 @@ module.exports = {
         let result = null;
 
         if (!arr || !fieldName || !value) {
-            debug('searchObject Error:'+ fieldName + '=>' + value);
+            logger.error('searchObject Error:'+ fieldName + '=>' + value);
             return result;
         }
 
@@ -35,7 +35,7 @@ module.exports = {
     // 数组有则替换 没则增加
     arraySearchReplaceInsert: (arr, fieldName, value, data)=> {
         if (!arr || !fieldName || !value) {
-            debug('searchObject Error:'+ fieldName + '=>' + value);
+            logger.error('searchObject Error:'+ fieldName + '=>' + value);
             return;
         }
 
@@ -61,12 +61,12 @@ module.exports = {
         }
 
         if (!jiraRssJson.rss) {
-            debug('rssData is null.');
+            logger.error('rssData is null.');
             return result;
         }
 
         if (!jiraRssJson.rss.channel || jiraRssJson.rss.channel.length === 0) {
-            debug('rssData channel Array is not correct.')
+            logger.error('rssData channel Array is not correct.')
             return result;
         }
 

@@ -1,11 +1,8 @@
 const router = require('koa-router')();
-const debug = require('debug')('route:home');
 const getLocalData = require('../modules/jiraFilter');
 
 // home
 router.get('/', async (ctx, next) => {
-    debug('test info');
-    console.log('wahat ere')
     let result = await getLocalData();
     await ctx.render('index', {
         title: 'Bugs Rate',

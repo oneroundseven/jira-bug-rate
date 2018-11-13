@@ -5,7 +5,7 @@
  * @author oneroundseven@gmail.com
  */
 
-const debug = require('debug')('jira:bugFilter');
+const logger = require('../../logger');
 const util = require('./util');
 
 
@@ -63,22 +63,22 @@ function bugFilter(versionItem) {
 
     let allTaskAndBugs = versionItem.allTaskAndBugs;
     if (!allTaskAndBugs || allTaskAndBugs.length === 0) {
-        debug('bugFilter Warn: not has any bugs and task.'+ versionItem.fixVersion)
+        logger.warn('bugFilter Warn: not has any bugs and task.'+ versionItem.fixVersion)
     }
 
     versionItem.bugs = 0;
-    debug('bugFilter: start group bugs by user.')
+    logger.compile('bugFilter: start group bugs by user.')
     let bugsGroup = groupBugByUser(allTaskAndBugs);
-    debug('bugFilter: end group bugs by user.')
+    logger.compile('bugFilter: end group bugs by user.')
     let tmp;
-    debug('bugFilter: start statistics user bugs rate.')
+    logger.compile('bugFilter: start statistics user bugs rate.')
     for (let user in bugsGroup) {
         tmp = statisticsBugs(bugsGroup[user], versionItem, user);
         if (tmp.bugs > 0) {
             versionItem.bugs += tmp.bugs;
         }
     }
-    debug('bugFilter: end statistics user bugs rate.')
+    logger.compile('bugFilter: end statistics user bugs rate.')
 }
 
 let defaultBugs = {

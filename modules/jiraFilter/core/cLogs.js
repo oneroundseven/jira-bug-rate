@@ -7,8 +7,8 @@
 
 const request = require('../request');
 const cheerio = require('cheerio');
-const debug = require('debug')('jira:cLogs');
 const sql = require('../../../config/sql-jira');
+const logger = require('../../logger');
 const workLogArgs = '?page=com.focustech.jira.focusjiraimprovement:worklog-tabpanel';
 
 
@@ -40,18 +40,18 @@ function statisticsTime(allTaskAndBugs) {
         try {
             let tmp;
             let len = new Array(allTaskAndBugs.length);
-            debug('cLogs Info: allTaskAndBugs =>'+ allTaskAndBugs.length);
+            logger.compile('cLogs Info: allTaskAndBugs =>'+ allTaskAndBugs.length);
 
             allTaskAndBugs.forEach((taskOrBug, index)=> {
                 // 增加延迟机制 避免jira因为请求过多挂掉
                 ((item, index)=> {
                     setTimeout(async ()=> {
                         try {
-                            debug('cLogs Info: Start get work time, order:'+ (index + 1) + ', link by:'+  item.link[0]);
+                            logger.compile('cLogs Info: Start get work time, order:'+ (index + 1) + ', link by:'+  item.link[0]);
                             tmp = await request.htmlRequest(item.link[0]+ workLogArgs);
                             result = result.concat(parsePage(tmp));
                         } catch(err) {
-                            debug('cLogs Error: Get jira work time error,'+ item.link[0] + ' Cased By:' + err);
+                            logger.error('cLogs Error: Get jira work time error,'+ item.link[0] + ' Cased By:' + err);
                         } finally {
                             len.splice(0,1);
                             if (len.length === 0) {
@@ -63,6 +63,7 @@ function statisticsTime(allTaskAndBugs) {
                 })(taskOrBug, index);
             });
         } catch (err) {
+            logger.error(err);
             reject(err);
         }
     });

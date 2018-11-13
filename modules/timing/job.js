@@ -4,14 +4,13 @@
  * @fileOverview UED-FE-Task
  * @author oneroundseven@gmail.com
  */
-process.env.DEBUG = 'jira:*';
 
 const sql = require('../../config/sql-jira');
 const moment = require('moment');
 const mongoDB = require('../mongodb');
 const request = require('../jiraFilter/request');
 const jiraData = require('../jiraFilter/data');
-const debug = require('debug')('jira:job');
+const logger = require('../logger');
 
 let run_lock = false;
 
@@ -28,7 +27,7 @@ let taskVersionInfo = {
 // jobs
 async function doJob(targetVersion, option) {
     if (run_lock === true) {
-        debug('Job running: try again later.');
+        logger.error('Job running: try again later.');
         return;
     }
 
@@ -61,7 +60,7 @@ async function doJob(targetVersion, option) {
         if (typeof targetVersion === 'string') {
             newVersionList = [targetVersion];
         } else {
-            debug('targetVersion args error, please checked first.');
+            logger.error('targetVersion args error, please checked first.');
             return;
         }
     }
@@ -69,7 +68,7 @@ async function doJob(targetVersion, option) {
     sources = await versionFilter(newVersionList, option);
 
     if (sources.length === 0) {
-        debug('Run Fail: bugs rate need config test time. =>'+ targetVersion);
+        logger.error('Run Fail: bugs rate need config test time. =>'+ targetVersion);
         sources.length = 0;
         return;
     }
@@ -84,11 +83,11 @@ async function doJob(targetVersion, option) {
         //5. 根据重新跑的数据进行重新入库
         reset(sources, results);
         run_lock = false;
-        debug('Dojob successful.');
+        logger.compile('Dojob successful.');
     }).catch(err=> {
-        debug(err);
+        logger.error(err);
         run_lock = false;
-        debug('Dojob Fail.');
+        logger.error('Dojob Fail.');
     });
 }
 
@@ -156,7 +155,7 @@ function searchJiraConfigInfo(fixVersions) {
             resolve(config);
         }).catch(err=> {
             reject(err);
-            debug('rssData Error:' + err);
+            logger.error('rssData Error:' + err);
         });
     });
 }
@@ -211,12 +210,12 @@ function validVersions(versions) {
                     if (versionInfo.length > 0) {
                         result.push(versions[index]);
                     } else {
-                        console.error(runError);
+                        logger.error(runError);
                     }
                 });
                 resolve(result);
             }).catch(err=> {
-                console.error(runError);
+                logger.error(runError);
                 reject([]);
             })
         } else {
@@ -291,7 +290,7 @@ function reset(sources, newVersions) {
                 await db.collection('versions').insertMany(versionRows);
             }
         } catch(err) {
-            debug(err);
+            logger.error(err);
         }
     })
 }

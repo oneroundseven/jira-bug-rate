@@ -5,7 +5,7 @@
  * @author oneroundseven@gmail.com
  */
 
-const debug = require('debug')('jira:timeLine');
+const logger = require('../../logger');
 const util = require('./util');
 
 let defaultTimeLine = {
@@ -20,17 +20,17 @@ function timeLine(logs, versionItem) {
     let result = versionItem;
 
     if (!result.releaseTestTime) {
-        debug('timeLine Error: releaseTestTime is not specified.'+ versionItem.fixVersion);
-        debug('doJob Fail.');
+        logger.error('timeLine Error: releaseTestTime is not specified.'+ versionItem.fixVersion);
+        logger.error('doJob Fail.');
         process.exit(1);
     }
 
     if (!result.releasePTime) {
-        debug('timeLine Warn: releasePtime is not specified.'+ versionItem.fixVersion);
+        logger.warn('timeLine Warn: releasePtime is not specified.'+ versionItem.fixVersion);
     }
 
     if (!result.releaseTime) {
-        debug('timeLine Warn: releaseTime is not specified.'+ versionItem.fixVersion);
+        logger.warn('timeLine Warn: releaseTime is not specified.'+ versionItem.fixVersion);
     }
 
     try {
@@ -38,7 +38,7 @@ function timeLine(logs, versionItem) {
         getFirstLogTime(logs, result);
         for (let userName in groupUser) {
             statisticsTimeLine(groupUser[userName].logs, result, userName);
-            debug('timeLine Log: trans '+ userName + ' work log time success');
+            logger.compile('timeLine Log: trans '+ userName + ' work log time success');
         }
     } catch (err) {
         throw err;
