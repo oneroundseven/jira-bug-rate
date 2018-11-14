@@ -6,6 +6,7 @@
  */
 
 const mongoDB = require('../mongodb');
+const moment = require('moment');
 
 function getLocalData(likeVersion) {
     return mongoDB(async db=> {
@@ -18,7 +19,7 @@ function getLocalData(likeVersion) {
                 versionListCondition.version = new RegExp('.*'+ likeVersion, 'gi');
             }
 
-            let versionsList = await db.collection('versions').find(versionListCondition).sort({ devStartTime: -1 }).toArray();
+            let versionsList = await db.collection('versions').find(versionListCondition).sort({ devTime: -1 }).toArray();
             let usersList = await db.collection('users').find().toArray();
             let bugRateList = await db.collection('bugrate').find().toArray();
             let tasksList = await db.collection('tasks').find().toArray();
@@ -32,6 +33,7 @@ function getLocalData(likeVersion) {
             versionsList.forEach(versionInfo=> {
                 version = versionInfo.version;
                 temp = Object.assign({}, versionInfo);
+                temp.devTime = moment(temp.devTime).format(moment.HTML5_FMT.DATE);
                 temp.users = [];
                 bugRateList.forEach(bugInfo=> {
                     if (bugInfo.version === version) {

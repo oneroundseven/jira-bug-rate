@@ -271,8 +271,12 @@ function reset(sources, newVersions) {
                     });
 
                     if (versionConfig.version) {
+                        let devStartTime = versionInfo[0].devStartTime;
+                        if (devStartTime) {
+                            devStartTime = new Date(devStartTime);
+                        }
                         versionRows.push(Object.assign({}, taskVersionInfo, versionConfig, {
-                            devTime: versionInfo[0].devStartTime,
+                            devTime: devStartTime,
                             isCreate: versionConfig.releaseTime ? 0 : 1,
                             addTime: new Date()
                         }));
